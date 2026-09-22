@@ -31,3 +31,7 @@
 
 - /spec Usaremos esta habilidad para crear las especificaciones.
 - /spec-impl Usaremos esta skill para hacer las implementaciones.
+
+## Reglas de código
+
+- Usa código limpio, nombres, funciones, variables, etc. en inglés.
