@@ -1,13 +1,33 @@
-<!-- BEGIN:nextjs-agent-rules -->
+# AGENTS.md: open-daycare
 
-# This is NOT the Next.js you know
+## Commands
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+| Action                  | Command         |
+| ----------------------- | --------------- |
+| Start dev server        | `npm run dev`   |
+| Build for production    | `npm run build` |
+| Start production server | `npm run start` |
+| Lint                    | `npm run lint`  |
 
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+## Framework notes
 
-<!-- END:nextjs-agent-rules -->
+- **Next.js 16.3.6** — this version has breaking changes. APIs, conventions, and file structure may differ from older Next.js training data. Check `node_modules/next/dist/docs/` for the guide before writing code.
+- **Tailwind CSS v4** — installed but config is minimal (`postcss.config.mjs`). Class names in `app/` use Tailwind v4 syntax (e.g., `bg-zinc-50`, `dark:bg-black`). Do not assume v3 patterns.
+- **App directory** — `app/page.tsx` is the home entrypoint. `app/layout.tsx` sets up `Geist` font variables. New pages go in `app/`.
+- **ESLint** — config in `eslint.config.mjs`. Ignores `.next/`, `out/`, `build/`. Runs via `npm run lint`.
 
-## MCPs
+## MCP configs
 
-- Playwright Screenchosts y cualquier cosa relacionada a Playwright tiene que estar en la carpeta .playwright-mcp
+- Playwright tests must use the `.playwright-mcp` folder.
+- Context7 MCP is used to fetch framework documentation.
+
+## Quick setup
+
+1. `npm install` to install dependencies
+2. `npm run dev` starts the dev server at `http://localhost:3000`
+3. Edit `app/page.tsx` to modify the home page
+
+## Spec Driven Development - Skills
+
+- /spec Usaremos esta habilidad para crear las especificaciones.
+- /spec-impl Usaremos esta skill para hacer las implementaciones.
