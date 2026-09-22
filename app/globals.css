@@ -16,6 +16,7 @@
   --color-announcement: #4E72C8;
   --font-sans: var(--font-nunito);
   --font-mono: var(--font-fredoka);
+  --font-display: var(--font-fredoka);
 }
 
 body {
