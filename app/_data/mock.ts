@@ -1,4 +1,5 @@
 export type PostType = "achievement" | "activity" | "announcement";
+export type NavIcon = "home" | "kids" | "bell" | "user";
 
 // Etiquetas visuales (español) por tipo — el dato va en inglés, la UI en español.
 export const POST_TYPE_LABEL: Record<PostType, string> = {
@@ -26,7 +27,7 @@ export interface FeedPost {
 
 export interface NavItem {
   label: string; // "Feed" | "Niños" | "Avisos" | "Mi cuenta"
-  icon: "home" | "kids" | "bell" | "user";
+  icon: NavIcon;
   active: boolean;
 }
 
@@ -42,7 +43,9 @@ export const SIDEBAR_USER: SidebarUser = {
   initial: "C",
 };
 
-export const NAV_ITEMS = [
+export const ROOM_SUBTITLE = "12 niños · martes 17 jun";
+
+export const NAV_ITEMS: NavItem[] = [
   { label: "Feed", icon: "home", active: true },
   { label: "Niños", icon: "kids", active: false },
   { label: "Avisos", icon: "bell", active: false },
@@ -57,12 +60,12 @@ export const POSTS: FeedPost[] = [
     avatarBg: "#A9D9E8",
     avatarColor: "#1F7A93",
     time: "14:20",
-    publishedByMe: false,
+    publishedByMe: true,
     type: "achievement",
     audience: "familia de Mateo",
-    text: "Mateo logró dar sus primeros pasos independientemente",
-    hearts: 12,
-    comments: 3,
+    text: "¡Usó el orinal solito por primera vez! Estaba feliz de contárselo a todos. Un gran paso.",
+    hearts: 3,
+    comments: 1,
   },
   {
     id: "2",
@@ -70,28 +73,27 @@ export const POSTS: FeedPost[] = [
     authorInitial: "M",
     avatarBg: "#A9D9E8",
     avatarColor: "#1F7A93",
-    time: "11:45",
-    publishedByMe: false,
+    time: "09:40",
+    publishedByMe: true,
     type: "activity",
-    audience: "toda la sala",
-    text: "Mateo practicó actividades de arte con témperas",
+    audience: "familia de Mateo",
+    text: "Pintamos con témperas esta mañana. Mateo eligió el azul para todo y se concentró un montón mezclando colores.",
     photoPlaceholder: { label: "Foto · pintando con témperas" },
-    hearts: 8,
-    comments: 5,
+    hearts: 5,
+    comments: 2,
   },
   {
     id: "3",
     authorName: "Anuncio general",
-    authorInitial: undefined,
     avatarBg: "#CCD8F4",
     avatarColor: "#4E72C8",
     avatarIcon: "megaphone",
-    time: "09:30",
-    publishedByMe: false,
+    time: "07:50",
+    publishedByMe: true,
     type: "announcement",
     audience: "toda la sala",
-    text: "Próximo evento: visita al zoológico el próximo viernes",
-    hearts: 25,
-    comments: 10,
+    text: "El viernes salimos al parque por la mañana. Recuerden mandar gorra y una botellita de agua.",
+    hearts: 8,
+    comments: 0,
   },
 ];

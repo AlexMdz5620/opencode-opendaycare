@@ -8,6 +8,12 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-accent: #D9583C;
+  --color-accent-mid: #EE8164;
+  --color-accent-soft: #F2937A;
+  --color-staff: #2E89A6;
+  --color-achievement: #3E9B6C;
+  --color-announcement: #4E72C8;
   --font-sans: var(--font-nunito);
   --font-mono: var(--font-fredoka);
 }
