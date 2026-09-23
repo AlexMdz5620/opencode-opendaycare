@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Kid } from "@/app/_data/kids";
 
 export function ProfileHero({ kid }: { kid: Kid }) {
@@ -17,12 +18,12 @@ export function ProfileHero({ kid }: { kid: Kid }) {
           {kid.ageYears} años · Sala {kid.room}
         </p>
       </div>
-      <a
+      <Link
         href="#"
         className="flex-none rounded-[12px] border-[1.5px] border-[#ECE0D0] bg-[#FFFDF9] px-4 py-[9px] text-[14px] font-bold text-[#6E6359]"
       >
         Editar
-      </a>
+      </Link>
     </div>
   );
 }

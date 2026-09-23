@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { KidParent } from "@/app/_data/kids";
 import { PlusIcon } from "@/components/shared/icons";
 
@@ -11,17 +12,14 @@ const PARENT_BADGES: Record<
 
 function LinkParentButton() {
   return (
-    <a
-      href="#"
-      className="flex items-center gap-3 pt-2"
-    >
+    <Link href="#" className="flex items-center gap-3 pt-2">
       <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full border-[1.5px] border-dashed border-[#D8CBBA] text-[#B0A290]">
         <PlusIcon size={18} />
       </span>
       <span className="text-[14.5px] font-extrabold text-[#C5503A]">
         Vincular otro padre
       </span>
-    </a>
+    </Link>
   );
 }
 
