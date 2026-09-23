@@ -31,6 +31,11 @@
 
 - /spec Usaremos esta habilidad para crear las especificaciones.
 - /spec-impl Usaremos esta skill para hacer las implementaciones.
+- /spec-verify Comando de Verify Spec: verifica y marca los criterios de aceptación de una spec (código, UI, docs de Next.js y screenshots).
+
+## Agents
+
+- **spec-verifier** (`.opencode/agents/spec-verifier.md`): agente que ejecuta el flujo de `/spec-verify`. Revisa los criterios de aceptación, corrige código fallido, valida con Playwright + Context7 y actualiza los checkboxes de la spec. No hace commits.
 
 ## Reglas de código
 

@@ -1,6 +1,6 @@
 ﻿# SPEC 01 — Home Feed estático (calco de feed.dc.html)
 
-> **Estado:** Aprovado
+> **Estado:** Implemented
 > **Depende de:** — (primera spec)
 > **Fecha:** 2026-07-02
 > **Objetivo:** Implementar el home (`/`) como calco visual del feed de la guardería (`references/pantallas/feed.dc.html`) con datos mock, sin autenticación ni base de datos, y sidebar responsive colapsable en mobile.
