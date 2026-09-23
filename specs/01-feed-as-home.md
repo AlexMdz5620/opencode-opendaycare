@@ -101,22 +101,22 @@ Convenciones:
 
 ## Acceptance criteria
 
-- [] Al abrir `http://localhost:3000/` se renderiza el feed (no el scaffold de create-next-app).
-- [] El fondo de la página es `#F6ECDF` y el texto base es `#3F362E`.
-- [] Los headings (logo, nombres, `Buenas, Caro`, iniciales de avatares) usan Fredoka; el cuerpo usa Nunito.
-- [] El sidebar de desktop muestra logo `OpenDayCare · Sala Soles`, botón `Nueva publicación`, nav con 4 items (`Feed` activo) y tarjeta `Caro Giménez · Maestra · Soles` con botón logout.
-- [] El main muestra el eyebrow `GUARDERÍA · SALA SOLES`, el h1 `Buenas, Caro` y el subtítulo `12 niños · martes 17 jun`.
-- [] Se renderiza el composer `Compartí un momento…` con avatar `C` e ícono de cámara.
-- [] Se renderiza el divisor `PUBLICADO HOY` con su línea.
-- [] Se renderizan exactamente 3 posts con los textos, badges (`LOGRO`/`ACTIVIDAD`/`ANUNCIO`) y audiencias del template.
-- [] El post de actividad muestra el placeholder de foto con borde dashed y la etiqueta `Foto · pintando con témperas`.
-- [] Cada post muestra contador de corazones, contador de comentarios y el link `Editar` (solo visuales).
-- [] En viewport `< md` el sidebar se oculta y un botón hamburguesa abre un drawer con el mismo contenido del sidebar.
-- [] Ningún botón o link del home navega o ejecuta una acción.
-- [] `npm run lint` pasa sin errores.
-- [] `npx tsc --noEmit` pasa sin errores.
-- [] No hay errores en la consola del navegador al cargar.
-- [] No queda rastro del dark mode heredado ni de las fuentes Geist.
+- [x] Al abrir `http://localhost:3000/` se renderiza el feed (no el scaffold de create-next-app).
+- [x] El fondo de la página es `#F6ECDF` y el texto base es `#3F362E`.
+- [x] Los headings (logo, nombres, `Buenas, Caro`, iniciales de avatares) usan Fredoka; el cuerpo usa Nunito.
+- [x] El sidebar de desktop muestra logo `OpenDayCare · Sala Soles`, botón `Nueva publicación`, nav con 4 items (`Feed` activo) y tarjeta `Caro Giménez · Maestra · Soles` con botón logout.
+- [x] El main muestra el eyebrow `GUARDERÍA · SALA SOLES`, el h1 `Buenas, Caro` y el subtítulo `12 niños · martes 17 jun`.
+- [x] Se renderiza el composer `Compartí un momento…` con avatar `C` e ícono de cámara.
+- [x] Se renderiza el divisor `PUBLICADO HOY` con su línea.
+- [x] Se renderizan exactamente 3 posts con los textos, badges (`LOGRO`/`ACTIVIDAD`/`ANUNCIO`) y audiencias del template.
+- [x] El post de actividad muestra el placeholder de foto con borde dashed y la etiqueta `Foto · pintando con témperas`.
+- [x] Cada post muestra contador de corazones, contador de comentarios y el link `Editar` (solo visuales).
+- [x] En viewport `< md` el sidebar se oculta y un botón hamburguesa abre un drawer con el mismo contenido del sidebar.
+- [x] Ningún botón o link del home navega o ejecuta una acción.
+- [x] `npm run lint` pasa sin errores.
+- [x] `npx tsc --noEmit` pasa sin errores.
+- [x] No hay errores en la consola del navegador al cargar.
+- [x] No queda rastro del dark mode heredado ni de las fuentes Geist.
 
 ## Decisions
 

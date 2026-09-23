@@ -13,7 +13,7 @@
 
 - **Next.js 16.3.6** — this version has breaking changes. APIs, conventions, and file structure may differ from older Next.js training data. Check `node_modules/next/dist/docs/` for the guide before writing code.
 - **Tailwind CSS v4** — installed but config is minimal (`postcss.config.mjs`). Class names in `app/` use Tailwind v4 syntax (e.g., `bg-zinc-50`, `dark:bg-black`). Do not assume v3 patterns.
-- **App directory** — `app/page.tsx` is the home entrypoint. `app/layout.tsx` sets up `Geist` font variables. New pages go in `app/`.
+- **App directory** — `app/page.tsx` is the home entrypoint. `app/layout.tsx` sets up `Fredoka`/`Nunito` font variables. New pages go in `app/`.
 - **ESLint** — config in `eslint.config.mjs`. Ignores `.next/`, `out/`, `build/`. Runs via `npm run lint`.
 
 ## MCP configs
