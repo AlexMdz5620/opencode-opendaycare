@@ -86,20 +86,20 @@ Convenciones:
 
 ## Acceptance criteria
 
-- [ ] `http://localhost:3000/kids` renderiza el calco de `ninos.dc.html`: header `GESTIÓN`/`Niños`/`Agregar niño`, buscador, `SALA SOLES · 8 niños`, grid con las 8 tarjetas (nombres, edades, textos de padres, badges `MANÍ`/`LACTOSA`/`VINCULAR` y chevrones del template).
-- [ ] `http://localhost:3000/kids/1` renderiza el calco de `perfil-nino.dc.html`: `Volver a Niños`, avatar `M`, `Mateo Fernández`, `3 años · Sala Soles`, `Editar`, banner de alergias, filas `12 mar 2022`/`Soles`/`feb 2025`, `Resumen del día`, padres Lucía `ACTIVA` y Diego `PENDIENTE`, `Vincular otro padre`.
-- [ ] Cada una de las 8 tarjetas navega a su propio `/kids/[id]` y muestra los datos de ese niño (no siempre el perfil de Mateo).
-- [ ] El perfil de Valentina Soto (`/kids/4`) muestra el estado vacío de padres con el mensaje y el botón `Vincular otro padre`.
-- [ ] `Volver a Niños` lleva a `/kids`.
-- [ ] Click en `Niños` del sidebar (desktop y drawer mobile) lleva a `/kids`; `Feed` y logo llevan a `/`.
-- [ ] En `/kids` y `/kids/[id]` el item `Niños` aparece activo (fondo `#FBE3D8`, texto `#D9583C`); en `/` sigue activo `Feed`.
-- [ ] `/kids/99` muestra el 404 nativo de Next.js.
-- [ ] `Agregar niño`, `Editar`, `Resumen del día`, `Vincular otro padre` y el buscador no navegan ni ejecutan acciones.
-- [ ] `Avisos`, `Mi cuenta` y logout siguen apuntando a `#`.
-- [ ] Las pantallas son responsive: el drawer hamburguesa funciona igual que en el home y el grid pasa a 1 columna en mobile.
-- [ ] `npm run lint` pasa sin errores.
-- [ ] `npx tsc --noEmit` pasa sin errores.
-- [ ] No hay errores en la consola del navegador al cargar `/`, `/kids` y `/kids/1`.
+- [x] `http://localhost:3000/kids` renderiza el calco de `ninos.dc.html`: header `GESTIÓN`/`Niños`/`Agregar niño`, buscador, `SALA SOLES · 8 niños`, grid con las 8 tarjetas (nombres, edades, textos de padres, badges `MANÍ`/`LACTOSA`/`VINCULAR` y chevrones del template).
+- [x] `http://localhost:3000/kids/1` renderiza el calco de `perfil-nino.dc.html`: `Volver a Niños`, avatar `M`, `Mateo Fernández`, `3 años · Sala Soles`, `Editar`, banner de alergias, filas `12 mar 2022`/`Soles`/`feb 2025`, `Resumen del día`, padres Lucía `ACTIVA` y Diego `PENDIENTE`, `Vincular otro padre`.
+- [x] Cada una de las 8 tarjetas navega a su propio `/kids/[id]` y muestra los datos de ese niño (no siempre el perfil de Mateo).
+- [x] El perfil de Valentina Soto (`/kids/4`) muestra el estado vacío de padres con el mensaje y el botón `Vincular otro padre`.
+- [x] `Volver a Niños` lleva a `/kids`.
+- [x] Click en `Niños` del sidebar (desktop y drawer mobile) lleva a `/kids`; `Feed` y logo llevan a `/`.
+- [x] En `/kids` y `/kids/[id]` el item `Niños` aparece activo (fondo `#FBE3D8`, texto `#D9583C`); en `/` sigue activo `Feed`.
+- [x] `/kids/99` muestra el 404 nativo de Next.js.
+- [x] `Agregar niño`, `Editar`, `Resumen del día`, `Vincular otro padre` y el buscador no navegan ni ejecutan acciones.
+- [x] `Avisos`, `Mi cuenta` y logout siguen apuntando a `#`.
+- [x] Las pantallas son responsive: el drawer hamburguesa funciona igual que en el home y el grid pasa a 1 columna en mobile.
+- [x] `npm run lint` pasa sin errores.
+- [x] `npx tsc --noEmit` pasa sin errores.
+- [x] No hay errores en la consola del navegador al cargar `/`, `/kids` y `/kids/1`.
 
 ## Decisions
 
