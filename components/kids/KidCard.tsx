@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Kid } from "@/app/_data/kids";
 import { ChevronRightIcon } from "@/components/shared/icons";
 
@@ -9,8 +10,8 @@ function parentsLabel(count: number): string {
 
 export function KidCard({ kid }: { kid: Kid }) {
   return (
-    <a
-      href="#"
+    <Link
+      href={`/kids/${kid.id}`}
       className="flex min-w-0 items-center gap-[14px] rounded-[18px] border border-[#ECE0D0] bg-[#FFFDF9] p-4 shadow-[0_4px_14px_-12px_rgba(120,90,60,.5)] transition duration-150 hover:-translate-y-0.5 hover:border-[#F2A78E]"
     >
       <span
@@ -38,6 +39,6 @@ export function KidCard({ kid }: { kid: Kid }) {
       ) : (
         <ChevronRightIcon size={18} className="flex-none text-[#CBB89F]" />
       )}
-    </a>
+    </Link>
   );
 }
