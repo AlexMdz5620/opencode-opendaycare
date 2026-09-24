@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import type { Kid } from "@/app/_data/kids";
 import { loadLocalKids } from "@/app/_data/localKids";
+import { ROOMS } from "@/app/_data/rooms";
 import { AddKidModal } from "@/components/kids/AddKidModal";
-import { KidCard } from "@/components/kids/KidCard";
 import { KidsHeader } from "@/components/kids/KidsHeader";
-import { KidsRoomLabel } from "@/components/kids/KidsRoomLabel";
+import { KidsRoomSection } from "@/components/kids/KidsRoomSection";
 import { KidsSearch } from "@/components/kids/KidsSearch";
 import { MobileNav } from "@/components/shared/MobileNav";
 import { Sidebar } from "@/components/shared/Sidebar";
@@ -20,6 +20,8 @@ export function KidsScreen({ kids }: { kids: Kid[] }) {
     setLocalKids(loadLocalKids());
   }, []);
 
+  const allKids = [...kids, ...localKids];
+
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
@@ -28,11 +30,14 @@ export function KidsScreen({ kids }: { kids: Kid[] }) {
         <div className="mx-auto w-full max-w-[880px] px-10 pb-20 pt-[34px]">
           <KidsHeader onAdd={() => setIsModalOpen(true)} />
           <KidsSearch />
-          <KidsRoomLabel />
-          <div className="grid grid-cols-1 gap-[14px] md:grid-cols-2">
-            {[...kids, ...localKids].map((kid) => (
-              <KidCard key={kid.id} kid={kid} />
-            ))}
+          <div className="flex flex-col gap-[22px]">
+            {ROOMS.map((room) => {
+              const roomKids = allKids.filter((kid) => kid.room === room);
+              if (roomKids.length === 0) return null;
+              return (
+                <KidsRoomSection key={room} room={room} kids={roomKids} />
+              );
+            })}
           </div>
         </div>
       </main>
