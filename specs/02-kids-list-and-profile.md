@@ -1,6 +1,6 @@
 # SPEC 02 — Niños y perfil del niño (calco de ninos.dc.html y perfil-nino.dc.html)
 
-> **Estado:** Approved
+> **Estado:** Implemented
 > **Depende de:** SPEC 01
 > **Fecha:** 2026-09-23
 > **Objetivo:** Implementar la lista de niños (`/kids`) y el perfil dinámico por id (`/kids/[id]`) como calcos de `ninos.dc.html` y `perfil-nino.dc.html`, con navegación funcional desde el sidebar y entre pantallas, sobre datos mock y sin autenticación.
@@ -119,12 +119,12 @@ Convenciones:
 
 ## Risks
 
-| Riesgo | Mitigación |
-| --- | --- |
-| Esta spec cambia el sidebar de SPEC 01 y su criterio "ningún link navega" | Deja constancia en Decisions; solo cambian logo/Feed/Niños, el contenido del feed conserva sus placeholders. |
-| `params` es `Promise` en Next 16.3.6 (breaking change) | Verificar la guía en `node_modules/next/dist/docs/` antes de escribir `app/kids/[id]/page.tsx`. |
+| Riesgo                                                                    | Mitigación                                                                                                    |
+| ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Esta spec cambia el sidebar de SPEC 01 y su criterio "ningún link navega" | Deja constancia en Decisions; solo cambian logo/Feed/Niños, el contenido del feed conserva sus placeholders.  |
+| `params` es `Promise` en Next 16.3.6 (breaking change)                    | Verificar la guía en `node_modules/next/dist/docs/` antes de escribir `app/kids/[id]/page.tsx`.               |
 | Datos inventados de 7 perfiles podrían contradecir los badges del listado | Badge derivado del dato con regla única; los 8 perfiles se revisan contra la tabla del template en el paso 1. |
-| Convertir `SidebarContent` a client component puede romper el límite RSC | `MobileNav` ya es client y lo importa; verificar home, `/kids` y drawer tras el paso 5. |
+| Convertir `SidebarContent` a client component puede romper el límite RSC  | `MobileNav` ya es client y lo importa; verificar home, `/kids` y drawer tras el paso 5.                       |
 
 ## What is **not** in this spec
 
