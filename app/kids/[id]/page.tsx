@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getKidById } from "@/app/_data/kids";
 import { AllergyBanner } from "@/components/kid-profile/AllergyBanner";
+import { LocalKidProfile } from "@/components/kid-profile/LocalKidProfile";
 import { ProfileAside } from "@/components/kid-profile/ProfileAside";
 import { ProfileBackLink } from "@/components/kid-profile/ProfileBackLink";
 import { ProfileFacts } from "@/components/kid-profile/ProfileFacts";
@@ -15,6 +16,20 @@ export default async function KidProfilePage({
 }) {
   const { id } = await params;
   const kid = getKidById(id);
+
+  if (!kid && id.startsWith("local-")) {
+    return (
+      <div className="flex min-h-screen bg-background">
+        <Sidebar />
+        <MobileNav />
+        <main className="h-screen min-w-0 flex-1 overflow-y-auto">
+          <div className="mx-auto w-full max-w-[820px] px-10 pb-20 pt-[34px]">
+            <LocalKidProfile id={id} />
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   if (!kid) {
     notFound();
