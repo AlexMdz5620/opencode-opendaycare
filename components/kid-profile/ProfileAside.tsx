@@ -13,7 +13,7 @@ export function ProfileAside({ kid }: { kid: Kid }) {
         <SunIcon size={18} />
         Resumen del día
       </Link>
-      <ParentsCard parents={kid.parents} />
+      <ParentsCard parents={kid.parents} kidName={kid.name} />
     </div>
   );
 }
