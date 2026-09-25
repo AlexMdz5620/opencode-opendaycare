@@ -85,31 +85,31 @@ Convención de enrutamiento: el prefijo `local-` distingue los ids locales de lo
 
 ## Acceptance criteria
 
-- [ ] Click en `Agregar niño` (`/kids`) abre el modal y no navega.
-- [ ] El modal replica `agregar-nino.dc.html`: cabecera `Cancelar`/`Agregar niño`/`Guardar` y los 5 campos con sus placeholders.
-- [ ] `SALA` ofrece `Soles`, `Lunas` y `Estrellas`, con `Soles` por defecto.
-- [ ] Con cualquiera de los 3 obligatorios vacío, `Guardar` no cierra ni guarda y ese campo muestra borde rojo + `Este campo es obligatorio`.
-- [ ] Alergias y notas se pueden dejar vacías sin bloquear el guardado.
-- [ ] Tras guardar, el modal se cierra y el registro existe en `localStorage` bajo `openDaycare:kids:v1`.
-- [ ] Reabrir el modal muestra los campos vacíos.
-- [ ] `Cancelar`, `Esc` y el click en el fondo cierran descartando lo escrito.
-- [ ] `app/_data/kids.ts` queda byte a byte igual (sus 8 niños siguen intactos).
-- [ ] Recargar `/kids` mantiene el niño nuevo al final de su sala.
-- [ ] El divisor de Soles al inicio sigue diciendo `SALA SOLES · 8 niños` con las 8 tarjetas (calco de SPEC 02).
-- [ ] Un niño creado en `Lunas` crea el divisor `SALA LUNAS · 1 niño` con su tarjeta; `Estrellas` sin niños no muestra divisor.
-- [ ] El contador usa `1 niño` en singular y `N niños` en plural.
-- [ ] Click en el divisor contrae/expande solo esa sala; todas arrancan expandidas y al recargar vuelven a expandidas.
-- [ ] El chevron rota al contraer y el botón expone `aria-expanded`.
-- [ ] La tarjeta del niño nuevo navega a su `/kids/local-…` y muestra nombre, `N años · Sala`.
-- [ ] Su perfil muestra la fecha de nacimiento convertida (`14 abr 2023`), la sala, `Ingreso` = mes de creación, `PADRES VINCULADOS` en estado vacío y `Vincular otro padre`.
-- [ ] Sin alergias no se renderiza el banner; con alergias el banner muestra el texto completo y la tarjeta el badge con la primera etiqueta en mayúsculas (`MANÍ`).
-- [ ] `/kids/99` sigue mostrando el 404 nativo de Next.js.
-- [ ] `/kids/local-<id inexistente>` muestra un bloque "no encontrado" con `Volver a Niños`, sin romper la app.
-- [ ] Con `localStorage` bloqueado, guardar un niño no lanza excepciones (queda en memoria hasta recargar).
-- [ ] A 375px el modal no produce scroll horizontal y su contenido hace scroll interno.
-- [ ] No hay avisos de hidratación ni errores de consola en `/kids` y en el perfil de un niño nuevo.
-- [ ] `npm run lint` pasa sin errores.
-- [ ] `npx tsc --noEmit` pasa sin errores.
+- [x] Click en `Agregar niño` (`/kids`) abre el modal y no navega.
+- [x] El modal replica `agregar-nino.dc.html`: cabecera `Cancelar`/`Agregar niño`/`Guardar` y los 5 campos con sus placeholders.
+- [x] `SALA` ofrece `Soles`, `Lunas` y `Estrellas`, con `Soles` por defecto.
+- [x] Con cualquiera de los 3 obligatorios vacío, `Guardar` no cierra ni guarda y ese campo muestra borde rojo + `Este campo es obligatorio`.
+- [x] Alergias y notas se pueden dejar vacías sin bloquear el guardado.
+- [x] Tras guardar, el modal se cierra y el registro existe en `localStorage` bajo `openDaycare:kids:v1`.
+- [x] Reabrir el modal muestra los campos vacíos.
+- [x] `Cancelar`, `Esc` y el click en el fondo cierran descartando lo escrito.
+- [x] `app/_data/kids.ts` queda byte a byte igual (sus 8 niños siguen intactos).
+- [x] Recargar `/kids` mantiene el niño nuevo al final de su sala.
+- [x] El divisor de Soles al inicio sigue diciendo `SALA SOLES · 8 niños` con las 8 tarjetas (calco de SPEC 02).
+- [x] Un niño creado en `Lunas` crea el divisor `SALA LUNAS · 1 niño` con su tarjeta; `Estrellas` sin niños no muestra divisor.
+- [x] El contador usa `1 niño` en singular y `N niños` en plural.
+- [x] Click en el divisor contrae/expande solo esa sala; todas arrancan expandidas y al recargar vuelven a expandidas.
+- [x] El chevron rota al contraer y el botón expone `aria-expanded`.
+- [x] La tarjeta del niño nuevo navega a su `/kids/local-…` y muestra su nombre; al abrirla, el perfil muestra `N años · Sala X` (formato de tarjeta de SPEC 02: `N años · … padres vinculados`).
+- [x] Su perfil muestra la fecha de nacimiento convertida (`14 abr 2023`), la sala, `Ingreso` = mes de creación, `PADRES VINCULADOS` en estado vacío y `Vincular otro padre`.
+- [x] Sin alergias no se renderiza el banner; con alergias el banner muestra el texto completo y la tarjeta el badge con la primera etiqueta en mayúsculas (`MANÍ`).
+- [x] `/kids/99` sigue mostrando el 404 nativo de Next.js.
+- [x] `/kids/local-<id inexistente>` muestra un bloque "no encontrado" con `Volver a Niños`, sin romper la app.
+- [x] Con `localStorage` bloqueado, guardar un niño no lanza excepciones (queda en memoria hasta recargar).
+- [x] A 375px el modal no produce scroll horizontal y su contenido hace scroll interno.
+- [x] No hay avisos de hidratación ni errores de consola en `/kids` y en el perfil de un niño nuevo.
+- [x] `npm run lint` pasa sin errores.
+- [x] `npx tsc --noEmit` pasa sin errores.
 
 ## Decisions
 
