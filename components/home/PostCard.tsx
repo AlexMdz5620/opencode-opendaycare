@@ -59,6 +59,20 @@ export function PostCard({ post }: { post: FeedPost }) {
         <PhotoPlaceholder label={post.photoPlaceholder.label} />
       )}
 
+      {post.photos && post.photos.length > 0 && (
+        <div className="mt-[14px] flex flex-wrap gap-2">
+          {post.photos.map((src) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={src}
+              src={src}
+              alt=""
+              className="h-24 w-24 rounded-[14px] object-cover"
+            />
+          ))}
+        </div>
+      )}
+
       <div className="mt-4 flex items-center gap-[18px] border-t border-[#F0E6D8] pt-[14px]">
         <span className="flex items-center gap-[7px] text-[14px] font-bold text-[#E0654A]">
           <HeartIcon size={19} />
