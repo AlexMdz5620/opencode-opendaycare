@@ -1,6 +1,9 @@
-import Link from "next/link";
+"use client";
+
+import { useState } from "react";
 import type { KidParent } from "@/app/_data/kids";
 import { PlusIcon } from "@/components/shared/icons";
+import { LinkParentModal } from "@/components/kid-profile/LinkParentModal";
 
 const PARENT_BADGES: Record<
   KidParent["status"],
@@ -10,20 +13,32 @@ const PARENT_BADGES: Record<
   pending: { label: "PENDIENTE", pill: "bg-[#F7E7A6]", text: "text-[#9A7B1E]" },
 };
 
-function LinkParentButton() {
+function LinkParentButton({ onClick }: { onClick: () => void }) {
   return (
-    <Link href="#" className="flex items-center gap-3 pt-2">
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex cursor-pointer items-center gap-3 pt-2"
+    >
       <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full border-[1.5px] border-dashed border-[#D8CBBA] text-[#B0A290]">
         <PlusIcon size={18} />
       </span>
       <span className="text-[14.5px] font-extrabold text-[#C5503A]">
         Vincular otro padre
       </span>
-    </Link>
+    </button>
   );
 }
 
-export function ParentsCard({ parents }: { parents: KidParent[] }) {
+export function ParentsCard({
+  parents,
+  kidName,
+}: {
+  parents: KidParent[];
+  kidName: string;
+}) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <div className="rounded-[16px] border border-[#ECE0D0] bg-[#FFFDF9] px-[18px] py-4">
       <div className="mb-[14px] text-[12.5px] font-extrabold tracking-[.8px] text-[#8A7C6D]">
@@ -35,7 +50,7 @@ export function ParentsCard({ parents }: { parents: KidParent[] }) {
             <p className="m-0 text-[14.5px] text-[#A89A8B]">
               Sin padres vinculados todavía
             </p>
-            <LinkParentButton />
+            <LinkParentButton onClick={() => setIsModalOpen(true)} />
           </>
         ) : (
           <>
@@ -65,10 +80,16 @@ export function ParentsCard({ parents }: { parents: KidParent[] }) {
                 </div>
               );
             })}
-            <LinkParentButton />
+            <LinkParentButton onClick={() => setIsModalOpen(true)} />
           </>
         )}
       </div>
+      {isModalOpen && (
+        <LinkParentModal
+          kidName={kidName}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
     </div>
   );
 }
