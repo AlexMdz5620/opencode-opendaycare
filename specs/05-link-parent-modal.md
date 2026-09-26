@@ -79,24 +79,24 @@ export function ParentsCard({ parents, kidName }: { parents: KidParent[]; kidNam
 
 ## Acceptance criteria
 
-- [ ] Click en `Vincular otro padre` en estado vacío (`/kids/4`) abre el modal y no navega.
-- [ ] Click en `Vincular otro padre` con padres (`/kids/1`) abre el mismo modal.
-- [ ] La tarjeta replica `vincular-padre.dc.html`: cabecera `Vincular padre` + `a Mateo Fernández` + X, banner azul, `NOMBRE DEL PADRE/MADRE`, `EMAIL`, `PARENTESCO` con `Mamá`/`Papá`/`Tutor/a`, bloque `CÓDIGO DE INVITACIÓN` con `Vence en 7 días` y botón `Enviar invitación`.
-- [ ] El subtítulo y el banner usan el niño real: en `/kids/4` dicen `a Valentina Soto` y `el feed de Valentina`.
-- [ ] El overlay es oscuro (`bg-black/50`) y la tarjeta mide `max-w-[480px]` centrada.
-- [ ] `Mamá` arranca activo; al clickear `Papá` o `Tutor/a` el pill activo cambia al seleccionado.
-- [ ] El código tiene 5 caracteres y es distinto en cada apertura del modal.
-- [ ] `Enviar invitación` con nombre y email vacíos no cierra y ambos campos muestran borde rojo `#D9583C` + `Este campo es obligatorio`.
-- [ ] Un email con formato inválido (`hola@`) no cierra y muestra `Ingresá un email válido`.
-- [ ] Con nombre y email válidos el modal se cierra sin enviar nada y la lista de padres queda intacta.
-- [ ] `X`, `Esc` y el click en el fondo cierran descartando lo escrito.
-- [ ] Al reabrir el modal: campos vacíos, sin errores, `Mamá` activo y código nuevo.
-- [ ] El modal abre igual en el perfil local (`/kids/local-…`), sin cambios en `app/_data/kids.ts`.
-- [ ] `Vincular otro padre` es un `<button>` que no navega (dejó de ser `Link href="#"`).
-- [ ] A 375px no hay scroll horizontal y la tarjeta hace scroll interno si el contenido desborda.
-- [ ] No hay errores de consola ni avisos de hidratación en `/kids/1`, `/kids/4` y un perfil local.
-- [ ] `npm run lint` pasa sin errores.
-- [ ] `npx tsc --noEmit` pasa sin errores.
+- [x] Click en `Vincular otro padre` en estado vacío (`/kids/4`) abre el modal y no navega.
+- [x] Click en `Vincular otro padre` con padres (`/kids/1`) abre el mismo modal.
+- [x] La tarjeta replica `vincular-padre.dc.html`: cabecera `Vincular padre` + `a Mateo Fernández` + X, banner azul, `NOMBRE DEL PADRE/MADRE`, `EMAIL`, `PARENTESCO` con `Mamá`/`Papá`/`Tutor/a`, bloque `CÓDIGO DE INVITACIÓN` con `Vence en 7 días` y botón `Enviar invitación`.
+- [x] El subtítulo y el banner usan el niño real: en `/kids/4` dicen `a Valentina Soto` y `el feed de Valentina`.
+- [x] El overlay es oscuro (`bg-black/50`) y la tarjeta mide `max-w-[480px]` centrada.
+- [x] `Mamá` arranca activo; al clickear `Papá` o `Tutor/a` el pill activo cambia al seleccionado.
+- [x] El código tiene 5 caracteres y es distinto en cada apertura del modal.
+- [x] `Enviar invitación` con nombre y email vacíos no cierra y ambos campos muestran borde rojo `#D9583C` + `Este campo es obligatorio`.
+- [x] Un email con formato inválido (`hola@`) no cierra y muestra `Ingresá un email válido`.
+- [x] Con nombre y email válidos el modal se cierra sin enviar nada y la lista de padres queda intacta.
+- [x] `X`, `Esc` y el click en el fondo cierran descartando lo escrito.
+- [x] Al reabrir el modal: campos vacíos, sin errores, `Mamá` activo y código nuevo.
+- [x] El modal abre igual en el perfil local (`/kids/local-…`), sin cambios en `app/_data/kids.ts`.
+- [x] `Vincular otro padre` es un `<button>` que no navega (dejó de ser `Link href="#"`).
+- [x] A 375px no hay scroll horizontal y la tarjeta hace scroll interno si el contenido desborda.
+- [x] No hay errores de consola ni avisos de hidratación en `/kids/1`, `/kids/4` y un perfil local.
+- [x] `npm run lint` pasa sin errores.
+- [x] `npx tsc --noEmit` pasa sin errores.
 
 ## Decisions
 
