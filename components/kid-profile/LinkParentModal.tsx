@@ -1,14 +1,32 @@
 "use client";
 
-import { useEffect } from "react";
-import { CloseIcon } from "@/components/shared/icons";
+import { useEffect, useState } from "react";
+import { CloseIcon, InfoIcon } from "@/components/shared/icons";
 
 interface LinkParentModalProps {
   kidName: string;
   onClose: () => void;
 }
 
+type Relation = "Mamá" | "Papá" | "Tutor/a";
+
+const RELATIONS: Relation[] = ["Mamá", "Papá", "Tutor/a"];
+
+const LABEL_CLASS =
+  "mb-2 text-[12px] font-extrabold tracking-[.7px] text-[#94887B]";
+
+function inputClass(hasError: boolean): string {
+  return [
+    "w-full rounded-[14px] border-[1.5px] bg-white px-4 py-[13px] text-[15px] text-foreground outline-none placeholder:text-[#B6A99B]",
+    hasError ? "border-[#D9583C]" : "border-[#EADFD0]",
+  ].join(" ");
+}
+
 export function LinkParentModal({ kidName, onClose }: LinkParentModalProps) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [relation, setRelation] = useState<Relation>("Mamá");
+
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") onClose();
@@ -16,6 +34,8 @@ export function LinkParentModal({ kidName, onClose }: LinkParentModalProps) {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onClose]);
+
+  const firstName = kidName.split(" ")[0];
 
   return (
     <div
@@ -46,7 +66,64 @@ export function LinkParentModal({ kidName, onClose }: LinkParentModalProps) {
             <CloseIcon size={18} />
           </button>
         </div>
-        <div className="p-[26px] pt-6" />
+
+        <div className="p-[26px] pt-6">
+          <div className="mb-5 flex gap-[11px] rounded-[14px] bg-[#E3ECFB] px-4 py-[13px]">
+            <InfoIcon size={20} className="mt-[1px] flex-none text-[#4E72C8]" />
+            <span className="text-[13.5px] leading-[1.45] text-[#3F5694]">
+              Le enviaremos un correo con un código para que active su cuenta.
+              Solo verá el feed de {firstName}.
+            </span>
+          </div>
+
+          <div className="mb-[18px]">
+            <div className={LABEL_CLASS}>NOMBRE DEL PADRE/MADRE</div>
+            <input
+              type="text"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder="Ej. Diego Fernández"
+              className={inputClass(false)}
+            />
+          </div>
+
+          <div className="mb-[18px]">
+            <div className={LABEL_CLASS}>EMAIL</div>
+            <input
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="correo@ejemplo.com"
+              className={inputClass(false)}
+            />
+          </div>
+
+          <div className="mb-5">
+            <div className="mb-[10px] text-[12px] font-extrabold tracking-[.7px] text-[#94887B]">
+              PARENTESCO
+            </div>
+            <div className="flex gap-[9px]">
+              {RELATIONS.map((option) => {
+                const isActive = relation === option;
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => setRelation(option)}
+                    className={[
+                      "flex-1 cursor-pointer rounded-full border-[1.5px] px-[11px] py-[11px] text-[14px] font-extrabold",
+                      isActive
+                        ? "border-[#9FB8EC] bg-[#CCD8F4] text-[#4E72C8]"
+                        : "border-[#ECE0D0] bg-[#FFFDF9] text-[#6E6359]",
+                    ].join(" ")}
+                  >
+                    {option}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
