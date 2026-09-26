@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fredoka, Nunito } from "next/font/google";
 import { FeedProvider } from "@/components/home/FeedContext";
+import { CreatePostModal } from "@/components/home/CreatePostModal";
 import "./globals.css";
 
 const fontFredoka = Fredoka({
@@ -27,7 +28,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${fontFredoka.variable} ${fontNunito.variable} h-full antialiased`}
     >
       <body className="min-h-full flex-col">
-        <FeedProvider>{children}</FeedProvider>
+        <FeedProvider>
+          {children}
+          <CreatePostModal />
+        </FeedProvider>
       </body>
     </html>
   );
