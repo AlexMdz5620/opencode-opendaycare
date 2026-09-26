@@ -6,6 +6,10 @@ const BADGE_STYLES: Record<PostType, { pill: string; label: string; dot: string 
   achievement: { pill: "bg-[#CFEBD8]", label: "text-achievement", dot: "bg-achievement" },
   activity: { pill: "bg-[#C7E7F1]", label: "text-staff", dot: "bg-staff" },
   announcement: { pill: "bg-[#CCD8F4]", label: "text-announcement", dot: "bg-announcement" },
+  meal: { pill: "bg-[#F3E9CF]", label: "text-[#9A7B1E]", dot: "bg-[#9A7B1E]" },
+  nap: { pill: "bg-[#E7DCF6]", label: "text-[#7B5FC0]", dot: "bg-[#7B5FC0]" },
+  mood: { pill: "bg-[#F9D2DE]", label: "text-[#C56486]", dot: "bg-[#C56486]" },
+  photo: { pill: "bg-[#FBD8CC]", label: "text-[#D9684A]", dot: "bg-[#D9684A]" },
 };
 
 export function PostCard({ post }: { post: FeedPost }) {

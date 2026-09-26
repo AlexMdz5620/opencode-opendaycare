@@ -1,12 +1,33 @@
-export type PostType = "achievement" | "activity" | "announcement";
+export type PostType =
+  | "meal"
+  | "nap"
+  | "activity"
+  | "achievement"
+  | "mood"
+  | "photo"
+  | "announcement";
 export type NavIcon = "home" | "kids" | "bell" | "user";
 
 // Etiquetas visuales (español) por tipo — el dato va en inglés, la UI en español.
 export const POST_TYPE_LABEL: Record<PostType, string> = {
-  achievement: "LOGRO",
+  meal: "COMIDA",
+  nap: "SIESTA",
   activity: "ACTIVIDAD",
+  achievement: "LOGRO",
+  mood: "ÁNIMO",
+  photo: "FOTO",
   announcement: "ANUNCIO",
 };
+
+export const POST_TYPE_ORDER: PostType[] = [
+  "meal",
+  "nap",
+  "activity",
+  "achievement",
+  "mood",
+  "photo",
+  "announcement",
+];
 
 export interface FeedPost {
   id: string;
@@ -21,6 +42,7 @@ export interface FeedPost {
   audience: string; // "familia de Mateo" | "toda la sala"
   text: string;
   photoPlaceholder?: { label: string }; // "Foto · pintando con témperas"
+  photos?: string[]; // object URLs en memoria — solo posts nuevos
   hearts: number;
   comments: number;
 }
