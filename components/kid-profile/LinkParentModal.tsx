@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CloseIcon, InfoIcon } from "@/components/shared/icons";
+import { CloseIcon, InfoIcon, SendIcon } from "@/components/shared/icons";
 
 interface LinkParentModalProps {
   kidName: string;
@@ -9,6 +9,13 @@ interface LinkParentModalProps {
 }
 
 type Relation = "Mamá" | "Papá" | "Tutor/a";
+
+interface FormErrors {
+  name?: boolean;
+  email?: "empty" | "format";
+}
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const RELATIONS: Relation[] = ["Mamá", "Papá", "Tutor/a"];
 
@@ -33,11 +40,18 @@ function inputClass(hasError: boolean): string {
   ].join(" ");
 }
 
+function ErrorMessage({ children }: { children: string }) {
+  return (
+    <p className="mt-1.5 text-[12.5px] font-bold text-[#D9583C]">{children}</p>
+  );
+}
+
 export function LinkParentModal({ kidName, onClose }: LinkParentModalProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [relation, setRelation] = useState<Relation>("Mamá");
   const [code] = useState(() => generateInviteCode());
+  const [errors, setErrors] = useState<FormErrors>({});
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -46,6 +60,20 @@ export function LinkParentModal({ kidName, onClose }: LinkParentModalProps) {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onClose]);
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const next: FormErrors = {};
+    if (!name.trim()) next.name = true;
+    if (!email.trim()) {
+      next.email = "empty";
+    } else if (!EMAIL_PATTERN.test(email.trim())) {
+      next.email = "format";
+    }
+    setErrors(next);
+    if (next.name || next.email) return;
+    onClose();
+  }
 
   const firstName = kidName.split(" ")[0];
 
@@ -56,10 +84,12 @@ export function LinkParentModal({ kidName, onClose }: LinkParentModalProps) {
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      <div
+      <form
         role="dialog"
         aria-modal="true"
         aria-label="Vincular padre"
+        noValidate
+        onSubmit={handleSubmit}
         className="max-h-[calc(100dvh_-_32px)] w-full max-w-[480px] overflow-y-auto overflow-x-hidden rounded-[24px] border border-[#ECE0D0] bg-[#FBF4EC] shadow-[0_20px_50px_-24px_rgba(63,54,46,.35)] sm:max-h-[calc(100dvh_-_48px)]"
       >
         <div className="flex items-center justify-between border-b border-[#ECE0D0] px-[26px] py-5">
@@ -95,8 +125,9 @@ export function LinkParentModal({ kidName, onClose }: LinkParentModalProps) {
               value={name}
               onChange={(event) => setName(event.target.value)}
               placeholder="Ej. Diego Fernández"
-              className={inputClass(false)}
+              className={inputClass(Boolean(errors.name))}
             />
+            {errors.name && <ErrorMessage>Este campo es obligatorio</ErrorMessage>}
           </div>
 
           <div className="mb-[18px]">
@@ -106,8 +137,15 @@ export function LinkParentModal({ kidName, onClose }: LinkParentModalProps) {
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="correo@ejemplo.com"
-              className={inputClass(false)}
+              className={inputClass(Boolean(errors.email))}
             />
+            {errors.email && (
+              <ErrorMessage>
+                {errors.email === "format"
+                  ? "Ingresá un email válido"
+                  : "Este campo es obligatorio"}
+              </ErrorMessage>
+            )}
           </div>
 
           <div className="mb-5">
@@ -147,8 +185,16 @@ export function LinkParentModal({ kidName, onClose }: LinkParentModalProps) {
               Vence en 7 días
             </div>
           </div>
+
+          <button
+            type="submit"
+            className="flex w-full cursor-pointer items-center justify-center gap-[9px] rounded-[14px] bg-gradient-to-b from-[#F4977E] to-[#EE8164] px-[14px] py-[14px] text-[15.5px] font-extrabold text-white shadow-[0_10px_22px_-8px_rgba(238,129,100,.7)]"
+          >
+            <SendIcon size={19} />
+            Enviar invitación
+          </button>
         </div>
-      </div>
+      </form>
     </div>
   );
 }
