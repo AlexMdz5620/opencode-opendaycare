@@ -29,6 +29,27 @@ const TYPE_PILL_COLOR: Record<PostType, { bg: string; fg: string }> = {
   announcement: { bg: "#CCD8F4", fg: "#4E72C8" },
 };
 
+interface CreatePostErrors {
+  audience?: boolean;
+  type?: boolean;
+  description?: boolean;
+}
+
+function textareaClass(hasError: boolean): string {
+  return [
+    "min-h-[120px] w-full resize-y rounded-[14px] border-[1.5px] bg-white px-4 py-[14px] text-[15px] leading-normal text-foreground outline-none placeholder:text-[#B6A99B]",
+    hasError ? "border-[#D9583C]" : "border-[#EADFD0]",
+  ].join(" ");
+}
+
+function ErrorMessage() {
+  return (
+    <p className="mt-1.5 text-[12.5px] font-bold text-[#D9583C]">
+      Este campo es obligatorio
+    </p>
+  );
+}
+
 export function CreatePostModal() {
   const { isCreateOpen, closeCreate } = useFeed();
 
@@ -42,6 +63,7 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
   const [allRoom, setAllRoom] = useState(false);
   const [type, setType] = useState<PostType | null>(null);
   const [description, setDescription] = useState("");
+  const [errors, setErrors] = useState<CreatePostErrors>({});
   const [localKids, setLocalKids] = useState<Kid[]>([]);
 
   useEffect(() => {
@@ -81,6 +103,16 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
     );
   }
 
+  function handlePublish() {
+    const next: CreatePostErrors = {
+      audience: !allRoom && selectedKidIds.length === 0,
+      type: !type,
+      description: !description.trim(),
+    };
+    setErrors(next);
+    if (next.audience || next.type || next.description) return;
+  }
+
   function pillClass(selected: boolean): string {
     return [
       "flex cursor-pointer items-center gap-2 rounded-full border-[1.5px] text-[14px] font-bold",
@@ -116,6 +148,7 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
           </span>
           <button
             type="button"
+            onClick={handlePublish}
             className="cursor-pointer text-[15px] font-extrabold text-[#D9583C]"
           >
             Publicar
@@ -123,74 +156,83 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="p-[26px] pt-6">
-          <div className={SECTION_LABEL_CLASS}>PARA</div>
-          <div className="mb-[22px] flex flex-wrap gap-[9px]">
-            {kids.map((kid) => {
-              const selected = !allRoom && selectedKidIds.includes(kid.id);
-              const firstName = kid.name.split(" ")[0];
-              return (
-                <button
-                  key={kid.id}
-                  type="button"
-                  onClick={() => toggleKid(kid.id)}
-                  className={`${pillClass(selected)} py-[6px] pl-[6px] pr-[14px]`}
-                >
-                  <span
-                    className="flex h-[26px] w-[26px] flex-none items-center justify-center rounded-full font-display text-[13px] font-semibold"
+          <div className="mb-[22px]">
+            <div className={SECTION_LABEL_CLASS}>PARA</div>
+            <div className="flex flex-wrap gap-[9px]">
+              {kids.map((kid) => {
+                const selected = !allRoom && selectedKidIds.includes(kid.id);
+                const firstName = kid.name.split(" ")[0];
+                return (
+                  <button
+                    key={kid.id}
+                    type="button"
+                    onClick={() => toggleKid(kid.id)}
+                    className={`${pillClass(selected)} py-[6px] pl-[6px] pr-[14px]`}
+                  >
+                    <span
+                      className="flex h-[26px] w-[26px] flex-none items-center justify-center rounded-full font-display text-[13px] font-semibold"
+                      style={{
+                        backgroundColor: kid.avatarBg,
+                        color: kid.avatarColor,
+                      }}
+                    >
+                      {kid.initial}
+                    </span>
+                    {firstName}
+                  </button>
+                );
+              })}
+              <button
+                type="button"
+                onClick={toggleAllRoom}
+                className={`${pillClass(allRoom)} px-4 py-[6px]`}
+              >
+                Toda la sala
+              </button>
+            </div>
+            {errors.audience && <ErrorMessage />}
+          </div>
+
+          <div className="mb-[22px]">
+            <div className={SECTION_LABEL_CLASS}>TIPO</div>
+            <div className="flex flex-wrap gap-[9px]">
+              {POST_TYPE_ORDER.map((postType) => {
+                const selected = type === postType;
+                const color = TYPE_PILL_COLOR[postType];
+                return (
+                  <button
+                    key={postType}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() => setType(postType)}
+                    className={`cursor-pointer rounded-full px-4 py-2 text-[13.5px] font-extrabold ${
+                      selected
+                        ? "opacity-100 ring-2 ring-[#3F362E]"
+                        : "opacity-50"
+                    }`}
                     style={{
-                      backgroundColor: kid.avatarBg,
-                      color: kid.avatarColor,
+                      backgroundColor: color.bg,
+                      color: color.fg,
                     }}
                   >
-                    {kid.initial}
-                  </span>
-                  {firstName}
-                </button>
-              );
-            })}
-            <button
-              type="button"
-              onClick={toggleAllRoom}
-              className={`${pillClass(allRoom)} px-4 py-[6px]`}
-            >
-              Toda la sala
-            </button>
+                    {TYPE_PILL_LABEL[postType]}
+                  </button>
+                );
+              })}
+            </div>
+            {errors.type && <ErrorMessage />}
           </div>
 
-          <div className={SECTION_LABEL_CLASS}>TIPO</div>
-          <div className="mb-[22px] flex flex-wrap gap-[9px]">
-            {POST_TYPE_ORDER.map((postType) => {
-              const selected = type === postType;
-              const color = TYPE_PILL_COLOR[postType];
-              return (
-                <button
-                  key={postType}
-                  type="button"
-                  aria-pressed={selected}
-                  onClick={() => setType(postType)}
-                  className={`cursor-pointer rounded-full px-4 py-2 text-[13.5px] font-extrabold ${
-                    selected
-                      ? "opacity-100 ring-2 ring-[#3F362E]"
-                      : "opacity-50"
-                  }`}
-                  style={{
-                    backgroundColor: color.bg,
-                    color: color.fg,
-                  }}
-                >
-                  {TYPE_PILL_LABEL[postType]}
-                </button>
-              );
-            })}
+          <div className="mb-[22px]">
+            <div className={SECTION_LABEL_CLASS}>DESCRIPCIÓN</div>
+            <textarea
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              placeholder="Contá cómo le fue hoy…"
+              className={textareaClass(errors.description ?? false)}
+            />
+            {errors.description && <ErrorMessage />}
           </div>
-
-          <div className={SECTION_LABEL_CLASS}>DESCRIPCIÓN</div>
-          <textarea
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-            placeholder="Contá cómo le fue hoy…"
-            className="mb-[22px] min-h-[120px] w-full resize-y rounded-[14px] border-[1.5px] border-[#EADFD0] bg-white px-4 py-[14px] text-[15px] leading-normal text-foreground outline-none placeholder:text-[#B6A99B]"
-          />
         </div>
       </div>
     </div>
