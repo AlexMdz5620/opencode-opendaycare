@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { POST_TYPE_ORDER, type PostType } from "@/app/_data/mock";
 import { KIDS, type Kid } from "@/app/_data/kids";
 import { loadLocalKids } from "@/app/_data/localKids";
 import { useFeed } from "@/components/home/FeedContext";
+import { CloseIcon, PlusIcon } from "@/components/shared/icons";
 
 const SECTION_LABEL_CLASS =
   "mb-[10px] text-[12px] font-extrabold tracking-[.7px] text-[#94887B]";
@@ -64,20 +65,42 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
   const [type, setType] = useState<PostType | null>(null);
   const [description, setDescription] = useState("");
   const [errors, setErrors] = useState<CreatePostErrors>({});
+  const [photos, setPhotos] = useState<string[]>([]);
   const [localKids, setLocalKids] = useState<Kid[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLocalKids(loadLocalKids());
   }, []);
 
+  function dismiss() {
+    photos.forEach((url) => URL.revokeObjectURL(url));
+    onClose();
+  }
+
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") dismiss();
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onClose]);
+  });
+
+  function handleFiles(event: React.ChangeEvent<HTMLInputElement>) {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+    const urls = Array.from(files).map((file) =>
+      URL.createObjectURL(file),
+    );
+    setPhotos((prev) => [...prev, ...urls]);
+    event.target.value = "";
+  }
+
+  function removePhoto(url: string) {
+    URL.revokeObjectURL(url);
+    setPhotos((prev) => prev.filter((photo) => photo !== url));
+  }
 
   const kids = [...KIDS, ...localKids];
 
@@ -126,7 +149,7 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
     <div
       className="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:p-6"
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose();
+        if (event.target === event.currentTarget) dismiss();
       }}
     >
       <div
@@ -138,7 +161,7 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
         <div className="flex items-center justify-between border-b border-[#ECE0D0] px-[26px] py-5">
           <button
             type="button"
-            onClick={onClose}
+            onClick={dismiss}
             className="cursor-pointer text-[15px] font-bold text-[#94887B]"
           >
             Cancelar
@@ -232,6 +255,46 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
               className={textareaClass(errors.description ?? false)}
             />
             {errors.description && <ErrorMessage />}
+          </div>
+
+          <div>
+            <div className={SECTION_LABEL_CLASS}>FOTOS</div>
+            <div className="flex flex-wrap gap-3">
+              {photos.map((url) => (
+                <div key={url} className="relative h-24 w-24">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={url}
+                    alt=""
+                    className="h-24 w-24 rounded-[14px] object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removePhoto(url)}
+                    aria-label="Quitar foto"
+                    className="absolute -right-2 -top-2 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-[#3F362E] text-white shadow-[0_4px_10px_-4px_rgba(63,54,46,.6)]"
+                  >
+                    <CloseIcon size={14} />
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-[14px] border-[1.5px] border-dashed border-[#DBCDBA] bg-[#F4ECE1] text-[#B0A290]"
+              >
+                <PlusIcon size={22} className="text-[#C5503A]" />
+                <span className="text-[12px]">Agregar</span>
+              </button>
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={handleFiles}
+            />
           </div>
         </div>
       </div>
