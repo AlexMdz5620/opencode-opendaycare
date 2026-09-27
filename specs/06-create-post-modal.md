@@ -1,6 +1,6 @@
 # SPEC 06 — Modal de nueva publicación en el sidebar (calco de crear-publicacion.dc.html)
 
-> **Estado:** Approved
+> **Estado:** Implemented
 > **Depende de:** SPEC 01, SPEC 02, SPEC 04
 > **Fecha:** 2026-09-26
 > **Objetivo:** Abrir un modal calco de `crear-publicacion.dc.html` desde `Nueva publicación` y el composer, con audiencia multi-niño, 7 tipos y fotos manuales, publicando posts en un feed en memoria sin backend.
@@ -146,30 +146,30 @@ Post nuevo:
 
 ## Acceptance criteria
 
-- [ ] Click en `Nueva publicación` (sidebar desktop o drawer mobile, en `/` o `/kids`) abre el modal y no navega.
-- [ ] Click en el composer `Compartí un momento…` abre el mismo modal.
-- [ ] El modal replica `crear-publicacion.dc.html`: cabecera `Cancelar`/`Nueva publicación`/`Publicar`, secciones `PARA`, `TIPO`, `DESCRIPCIÓN`, `FOTOS` con botón `Agregar`.
-- [ ] `PARA` lista los 8 niños mock por nombre propio con sus avatares, más los locales creados en localStorage.
-- [ ] `PARA` permite seleccionar varios niños (estilo pill con toggle, sin checkbox cuadrado) y arranca con nada seleccionado.
-- [ ] Marcar `Toda la sala` elimina la selección de todos los niños y solo queda `Toda la sala`.
-- [ ] Con `Toda la sala` marcado, clickear un niño lo selecciona a él y desmarca `Toda la sala`.
-- [ ] `TIPO` muestra los 7 pills del template con sus colores y solo uno queda activo.
-- [ ] `Publicar` con audiencia, tipo o descripción vacíos no cierra y la sección faltante muestra `Este campo es obligatorio` en rojo `#D9583C`.
-- [ ] Con los 3 campos completos, `Publicar` cierra el modal y el post nuevo aparece arriba del feed.
-- [ ] El post nuevo muestra autor `Caro Giménez` con avatar `C`, la hora actual y `publicado por vos`.
-- [ ] Con `Toda la sala`, el feed muestra `Para: toda la sala`; con 2 niños, `Para: familia de Mateo, Sofía`.
-- [ ] El badge del post nuevo corresponde al tipo elegido (`COMIDA`, `SIESTA`, `ÁNIMO`, `FOTO`, etc.).
-- [ ] El botón `Agregar` abre el selector de archivos y las fotos elegidas aparecen como previews con X para quitarlas.
-- [ ] Las fotos elegidas se ven como thumbnails reales en el post publicado.
-- [ ] No hay Drag&Drop (arrastrar un archivo al modal no lo adjunta).
-- [ ] `Cancelar`, `Esc` y el click en el fondo cierran descartando todo; al reabrir arranca vacío.
-- [ ] El post nuevo se ve en el feed aunque antes hayas visitado `/kids` (estado en el provider del layout).
-- [ ] Recargar la página borra los posts nuevos (los 3 mock vuelven intactos).
-- [ ] Los 3 posts mock se ven byte a byte iguales a SPEC 01 (badges, placeholders, contadores).
-- [ ] A 375px no hay scroll horizontal y la tarjeta hace scroll interno.
-- [ ] No hay errores de consola ni avisos de hidratación en `/` y `/kids`.
-- [ ] `npm run lint` pasa sin errores.
-- [ ] `npx tsc --noEmit` pasa sin errores.
+- [x] Click en `Nueva publicación` (sidebar desktop o drawer mobile, en `/` o `/kids`) abre el modal y no navega.
+- [x] Click en el composer `Compartí un momento…` abre el mismo modal.
+- [x] El modal replica `crear-publicacion.dc.html`: cabecera `Cancelar`/`Nueva publicación`/`Publicar`, secciones `PARA`, `TIPO`, `DESCRIPCIÓN`, `FOTOS` con botón `Agregar`.
+- [x] `PARA` lista los 8 niños mock por nombre propio con sus avatares, más los locales creados en localStorage.
+- [x] `PARA` permite seleccionar varios niños (estilo pill con toggle, sin checkbox cuadrado) y arranca con nada seleccionado.
+- [x] Marcar `Toda la sala` elimina la selección de todos los niños y solo queda `Toda la sala`.
+- [x] Con `Toda la sala` marcado, clickear un niño lo selecciona a él y desmarca `Toda la sala`.
+- [x] `TIPO` muestra los 7 pills del template con sus colores y solo uno queda activo.
+- [x] `Publicar` con audiencia, tipo o descripción vacíos no cierra y la sección faltante muestra `Este campo es obligatorio` en rojo `#D9583C`.
+- [x] Con los 3 campos completos, `Publicar` cierra el modal y el post nuevo aparece arriba del feed.
+- [x] El post nuevo muestra autor `Caro Giménez` con avatar `C`, la hora actual y `publicado por vos`.
+- [x] Con `Toda la sala`, el feed muestra `Para: toda la sala`; con 2 niños, `Para: familia de Mateo, Sofía`.
+- [x] El badge del post nuevo corresponde al tipo elegido (`COMIDA`, `SIESTA`, `ÁNIMO`, `FOTO`, etc.).
+- [x] El botón `Agregar` abre el selector de archivos y las fotos elegidas aparecen como previews con X para quitarlas.
+- [x] Las fotos elegidas se ven como thumbnails reales en el post publicado.
+- [x] No hay Drag&Drop (arrastrar un archivo al modal no lo adjunta).
+- [x] `Cancelar`, `Esc` y el click en el fondo cierran descartando todo; al reabrir arranca vacío.
+- [x] El post nuevo se ve en el feed aunque antes hayas visitado `/kids` (estado en el provider del layout).
+- [x] Recargar la página borra los posts nuevos (los 3 mock vuelven intactos).
+- [x] Los 3 posts mock se ven byte a byte iguales a SPEC 01 (badges, placeholders, contadores).
+- [x] A 375px no hay scroll horizontal y la tarjeta hace scroll interno.
+- [x] No hay errores de consola ni avisos de hidratación en `/` y `/kids`.
+- [x] `npm run lint` pasa sin errores.
+- [x] `npx tsc --noEmit` pasa sin errores.
 
 ## Decisions
 

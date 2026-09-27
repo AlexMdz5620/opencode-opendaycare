@@ -153,6 +153,7 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
     addPost({
       id: `p-${Date.now().toString(36)}`,
       authorName: "Caro Giménez",
+      authorInitial: "C",
       avatarBg: "#F2937A",
       avatarColor: "#FFFFFF",
       time,
