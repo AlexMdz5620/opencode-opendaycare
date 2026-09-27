@@ -1,6 +1,6 @@
 # SPEC 05 — Modal "Vincular padre" en el perfil del niño (calco de vincular-padre.dc.html)
 
-> **Estado:** Approved
+> **Estado:** >Implemented
 > **Depende de:** SPEC 02
 > **Fecha:** 2026-09-25
 > **Objetivo:** Abrir un modal calco de `vincular-padre.dc.html` desde el botón `Vincular otro padre` de `ParentsCard`, puramente estético: valida nombre y email, muestra un código de invitación aleatorio y cierra sin enviar nada ni persistir datos.
