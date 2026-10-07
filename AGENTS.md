@@ -21,6 +21,7 @@
 - Playwright tests must use the `.playwright-mcp` folder.
 - Context7 MCP is used to fetch framework documentation.
 - **Supabase MCP** (remote, `https://mcp.supabase.com/mcp`) está habilitado a nivel global en `~/.config/opencode/opencode.json`. Proyecto: `tffklxeenwscrphijyrx`. Herramientas disponibles: `execute_sql`, `apply_migration`, `get_advisors`, `list_tables`, `search_docs`, `query_logs`, Edge Functions, branching, etc. Úsalo para trabajar con la base de datos (no adivines el estado del esquema).
+- **Migraciones obligatorias**: SIEMPRE que se manipule la base de datos (crear/modificar/eliminar tablas, columnas, índices, constraints, funciones, triggers, políticas RLS, etc.) se debe usar `apply_migration` (vía MCP o CLI). NUNCA usar `execute_sql` para DDL/cambios de esquema; `execute_sql` es solo para consultas de lectura o verificación puntual.
 
 ## Quick setup
 
@@ -34,6 +35,7 @@
 - No hay carpeta `supabase/` ni dependencias `supabase-js` / `@supabase/ssr` instaladas todavía.
 - `.env.template` define `SUPABASE_DB_PASS`; `.env` contiene los secrets (nunca commitear).
 - Antes de escribir SQL o tocar el esquema, cargar las skills de Supabase (ver sección siguiente).
+- Todo cambio de esquema o datos va por **migraciones** (`apply_migration`), nunca SQL suelto con `execute_sql`.
 
 ## Spec Driven Development - Skills
 
