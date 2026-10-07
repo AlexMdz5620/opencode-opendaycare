@@ -1,6 +1,6 @@
 # SPEC 08 — Tabla `users` y enums `user_role`/`user_status` en Supabase vía migración MCP
 
-> **Estado:** Draft
+> **Estado:** Approved
 > **Depende de:** SPEC 07
 > **Fecha:** 2026-10-07
 > **Objetivo:** Crear la tabla `public.users` con los enums `user_role` y `user_status` mediante una única migración MCP con RLS sin políticas y un usuario Staff sembrado (Alex, Guardería Sala Soles), registrando la migración como archivo espejo en `supabase/migrations/`.
@@ -61,8 +61,8 @@ where d.name = 'Guardería Sala Soles';
 
 Seed (1 fila):
 
-| full_name | email          | role  | status | daycare_id                     |
-| --------- | -------------- | ----- | ------ | ------------------------------ |
+| full_name | email          | role  | status | daycare_id                      |
+| --------- | -------------- | ----- | ------ | ------------------------------- |
 | Alex      | alex@googl.com | staff | active | Guardería Sala Soles (subquery) |
 
 No hay cambios en el repo aún: ninguna estructura TS existente se modifica. Durante la implementación se crea solo el archivo de migración espejo.
@@ -111,12 +111,12 @@ No hay cambios en el repo aún: ninguna estructura TS existente se modifica. Dur
 
 ## Risks
 
-| Riesgo | Mitigación |
-| --- | --- |
-| `users` queda desconectada de Auth (sin FK) | FK diferida a la spec de Auth; `email` provisorio documenta el identificador mientras tanto. |
-| Contraseña del staff de prueba sin persistencia | A propósito: no se guardan secretos en la BD; queda anotada en esta spec para la futura spec de Auth. |
-| `email` en `users` duplicará `auth.users` cuando llegue Auth | Decisión provisional explícita; la spec de Auth decidirá si elimina la columna o la mantiene. |
-| `on delete cascade` en `daycare_id` borraría usuarios si se borra el daycare | Consistente con el patrón de la referencia; el seed de daycares no se elimina. |
+| Riesgo                                                                       | Mitigación                                                                                            |
+| ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `users` queda desconectada de Auth (sin FK)                                  | FK diferida a la spec de Auth; `email` provisorio documenta el identificador mientras tanto.          |
+| Contraseña del staff de prueba sin persistencia                              | A propósito: no se guardan secretos en la BD; queda anotada en esta spec para la futura spec de Auth. |
+| `email` en `users` duplicará `auth.users` cuando llegue Auth                 | Decisión provisional explícita; la spec de Auth decidirá si elimina la columna o la mantiene.         |
+| `on delete cascade` en `daycare_id` borraría usuarios si se borra el daycare | Consistente con el patrón de la referencia; el seed de daycares no se elimina.                        |
 
 ## What is **not** in this spec
 
