@@ -40,6 +40,7 @@
 ## Spec Driven Development - Skills
 
 - /spec Usaremos esta habilidad para crear las especificaciones.
+- **Especificaciones de base de datos**: cualquier spec que tenga que ver con la base de datos (esquema, tablas, columnas, migraciones, RLS, índices, funciones, triggers, etc.) debe guardarse en `specs/database/` (ej. `specs/database/01-users-table.md`), no en la raíz de `specs/`.
 - /spec-impl Usaremos esta skill para hacer las implementaciones.
 - /spec-verify Comando de Verify Spec: verifica y marca los criterios de aceptación de una spec (código, UI, docs de Next.js y screenshots).
 
