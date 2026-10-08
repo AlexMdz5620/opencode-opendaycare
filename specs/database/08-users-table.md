@@ -1,6 +1,6 @@
 # SPEC 08 — Tabla `users` y enums `user_role`/`user_status` en Supabase vía migración MCP
 
-> **Estado:** Approved
+> **Estado:** Implemented
 > **Depende de:** SPEC 07
 > **Fecha:** 2026-10-07
 > **Objetivo:** Crear la tabla `public.users` con los enums `user_role` y `user_status` mediante una única migración MCP con RLS sin políticas y un usuario Staff sembrado (Alex, Guardería Sala Soles), registrando la migración como archivo espejo en `supabase/migrations/`.
@@ -13,7 +13,7 @@
 - Enums `user_role` (`staff`, `parent`, `admin`) y `user_status` (`pending`, `active`), valores en inglés (convención de la referencia `docs`).
 - Tabla `public.users` con las columnas de la referencia + `email text not null unique` (identificador provisional; ver Decisions).
 - FK `daycare_id` → `daycares(id)` `not null` con `on delete cascade`.
-- Seed de 1 fila: Staff `Alex` / `alex@googl.com` / `status active` / daycare = `Guardería Sala Soles` (resuelto por subquery sobre el nombre).
+- Seed de 1 fila: Staff `Alex` / `alex@google.com` / `status active` / daycare = `Guardería Sala Soles` (resuelto por subquery sobre el nombre).
 - RLS habilitado **sin políticas**: la tabla queda cerrada al Data API / `anon` key.
 - Verificación con `execute_sql` (esquema, enums, datos), `list_tables` y `get_advisors(security)`.
 - Archivo espejo en el repo: `supabase/migrations/<version>_create_users_table.sql` con el mismo SQL aplicado (misma `version` de `schema_migrations`), patrón SPEC 07.
@@ -54,16 +54,16 @@ create table public.users (
 alter table public.users enable row level security;
 
 insert into public.users (daycare_id, role, status, email, full_name)
-select d.id, 'staff', 'active', 'alex@googl.com', 'Alex'
+select d.id, 'staff', 'active', 'alex@google.com', 'Alex'
 from public.daycares d
 where d.name = 'Guardería Sala Soles';
 ```
 
 Seed (1 fila):
 
-| full_name | email          | role  | status | daycare_id                      |
-| --------- | -------------- | ----- | ------ | ------------------------------- |
-| Alex      | alex@googl.com | staff | active | Guardería Sala Soles (subquery) |
+| full_name | email           | role  | status | daycare_id                      |
+| --------- | --------------- | ----- | ------ | ------------------------------- |
+| Alex      | alex@google.com | staff | active | Guardería Sala Soles (subquery) |
 
 No hay cambios en el repo aún: ninguna estructura TS existente se modifica. Durante la implementación se crea solo el archivo de migración espejo.
 
@@ -73,7 +73,7 @@ No hay cambios en el repo aún: ninguna estructura TS existente se modifica. Dur
 2. **Migración.** Ejecutar `apply_migration` con name `create_users_table` y el SQL anterior. _Prueba: la tool reporta éxito sin error._
 3. **Verificación de enums.** `execute_sql` contra `pg_enum`: `user_role` con `staff, parent, admin` y `user_status` con `pending, active` en ese orden. _Prueba: 3 y 2 valores exactos._
 4. **Verificación de esquema.** `execute_sql` contra `information_schema.columns`, `table_constraints` y `pg_class`: 11 columnas, `daycare_id` `NOT NULL` con FK a `daycares`, `email` `NOT NULL` + `UNIQUE`, defaults (`status='active'`, booleanos `true`), `relrowsecurity = true`. _Prueba: los 11 datos coinciden con el Data model._
-5. **Verificación de datos.** `execute_sql`: `count(*) = 1`; la fila tiene `alex@googl.com`, `Alex`, `staff`, `active` y `daycare_id` = id de `Guardería Sala Soles`. _Prueba: 1 fila correcta._
+5. **Verificación de datos.** `execute_sql`: `count(*) = 1`; la fila tiene `alex@google.com`, `Alex`, `staff`, `active` y `daycare_id` = id de `Guardería Sala Soles`. _Prueba: 1 fila correcta._
 6. **Advisors.** `get_advisors(security)`: ningún hallazgo sobre `users` (el INFO `rls_enabled_no_policy` es intencional). _Prueba: sin hallazgos nuevos._
 7. **Archivo de migración en el repo.** Crear `supabase/migrations/<version>_create_users_table.sql` a mano con el mismo SQL; confirmar la fila `create_users_table` en `supabase_migrations.schema_migrations` y que la `version` del archivo coincide. _Prueba: archivo existe, SQL idéntico, versión coincide._
 8. **Repo.** `git status` muestra solo `specs/08-users-table.md` y el archivo de migración nuevo; `package.json` sin dependencias nuevas. _Prueba: sin deps; la app intacta._
@@ -89,7 +89,7 @@ No hay cambios en el repo aún: ninguna estructura TS existente se modifica. Dur
 - [x] `relrowsecurity` en `pg_class` para `users` es `true`.
 - [x] `pg_policies` devuelve 0 políticas para `users`.
 - [x] `select count(*) from public.users` devuelve `1`.
-- [x] La fila seed es `Alex` / `alex@googl.com` / `staff` / `active` / daycare = `Guardería Sala Soles`.
+- [x] La fila seed es `Alex` / `alex@google.com` / `staff` / `active` / daycare = `Guardería Sala Soles`.
 - [x] `users` no tiene columna de contraseña.
 - [x] `users.id` no tiene FK a `auth.users`.
 - [x] `supabase_migrations.schema_migrations` contiene `create_users_table`.

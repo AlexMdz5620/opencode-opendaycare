@@ -18,6 +18,6 @@ create table public.users (
 alter table public.users enable row level security;
 
 insert into public.users (daycare_id, role, status, email, full_name)
-select d.id, 'staff', 'active', 'alex@googl.com', 'Alex'
+select d.id, 'staff', 'active', 'alex@google.com', 'Alex'
 from public.daycares d
 where d.name = 'Guardería Sala Soles';
