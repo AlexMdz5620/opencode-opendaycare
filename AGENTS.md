@@ -31,11 +31,23 @@
 
 ## Supabase
 
-- El esquema de BD aún **no está implementado**. La referencia de tablas/columnas está en el folder `docs` (`../07-DB-Schema`, ver `opencode.json` → `references`), solo es documentación.
-- No hay carpeta `supabase/` ni dependencias `supabase-js` / `@supabase/ssr` instaladas todavía.
-- `.env.template` define `SUPABASE_DB_PASS`; `.env` contiene los secrets (nunca commitear).
+### Paquetes oficiales de Supabase para Next.js
+
+- La app interactúa con la base de datos **siempre** con los paquetes oficiales de Supabase: `@supabase/supabase-js` (cliente) y `@supabase/ssr` (sesiones por cookies para SSR). Instalados en `package.json`. No usar `fetch` crudo a la REST API ni otros clientes.
+- Helpers en `utils/supabase/` (alias `@/utils/supabase/`):
+  - `client.ts` → `createClient()` para Client Components (browser).
+  - `server.ts` → `createClient()` (async, usa `await cookies()`) para Server Components, Server Actions y Route Handlers.
+  - `proxy.ts` → `updateSession(request)`, refresca el token con `auth.getClaims()`.
+- `proxy.ts` en la raíz: en Next 16 `middleware.ts` se renombró a `proxy.ts` (ver `node_modules/next/dist/docs/01-app/01-getting-started/16-proxy.md`). Llama a `updateSession` y define el `matcher`. No redirigir a `/login` desde el proxy hasta que exista la spec de autenticación.
+- Env vars en `.env.local` (gitignored): `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. `.env.template` documenta las públicas; `.env` contiene `SUPABASE_DB_PASS` (secret, nunca commitear).
+- Las claves con prefijo `NEXT_PUBLIC_` se envían al browser: nunca poner `service_role` / secret keys ahí.
+
+### Esquema y migraciones
+
+- Migraciones imperativas en `supabase/migrations/` (existen `daycares`, `users`). La referencia de tablas/columnas del diseño está en `../07-DB-Schema` (ver `opencode.json` → `references`), solo documentación.
 - Antes de escribir SQL o tocar el esquema, cargar las skills de Supabase (ver sección siguiente).
 - Todo cambio de esquema o datos va por **migraciones** (`apply_migration`), nunca SQL suelto con `execute_sql`.
+- RLS está habilitado en las tablas de `public` **sin políticas**: el cliente anon conecta pero lee 0 filas. Las políticas se definen en specs de `specs/database/`.
 
 ## Spec Driven Development - Skills
 
