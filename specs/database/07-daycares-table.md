@@ -1,6 +1,6 @@
 # SPEC 07 — Primera tabla `daycares` en Supabase vía migración MCP
 
-> **Estado:** Approved
+> **Estado:** Implemented
 > **Depende de:** Ninguna
 > **Fecha:** 2026-10-07
 > **Objetivo:** Crear la tabla `public.daycares` en Supabase con una única migración aplicada por MCP que habilita RLS sin políticas e inserta 5 guarderías, siendo la principal la Guardería Sala Soles, y registrar la migración como archivo en `supabase/migrations/` del repo.
@@ -90,12 +90,12 @@ No hay cambios de datos en el repo: ninguna estructura TS existente se modifica.
 
 ## Risks
 
-| Riesgo                                               | Mitigación                                                                                             |
-| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Migración directa a BD remota sin guardia local      | Esquema vacío, tabla nueva y migración registrada en `supabase_migrations`; nada existente que romper. |
+| Riesgo                                                | Mitigación                                                                                                    |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Migración directa a BD remota sin guardia local       | Esquema vacío, tabla nueva y migración registrada en `supabase_migrations`; nada existente que romper.        |
 | Archivo en repo puede desincronizarse de la BD remota | El archivo es espejo del SQL aplicado (misma version `20261007184831`); una futura spec de CLI lo reconcilia. |
-| Datos ficticios confunden un futuro seed real        | Los 5 nombres/direcciones están listados en la spec; una futura spec de CRUD los reemplaza con UPDATE. |
-| Tabla con RLS sin políticas es invisible al Data API | A propósito: nadie consume la tabla todavía; las políticas llegan con la spec de integración/Auth.     |
+| Datos ficticios confunden un futuro seed real         | Los 5 nombres/direcciones están listados en la spec; una futura spec de CRUD los reemplaza con UPDATE.        |
+| Tabla con RLS sin políticas es invisible al Data API  | A propósito: nadie consume la tabla todavía; las políticas llegan con la spec de integración/Auth.            |
 
 ## What is **not** in this spec
 
