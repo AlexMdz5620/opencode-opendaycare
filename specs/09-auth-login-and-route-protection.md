@@ -1,6 +1,6 @@
 # SPEC 09 — Login real con Supabase Auth y protección de rutas
 
-> **Estado:** Approved
+> **Estado:** Implemented
 > **Depende de:** SPEC 03, SPEC 08
 > **Fecha:** 2026-10-08
 > **Objetivo:** Conectar el login existente a Supabase Auth (solo email y password) mediante una Server Action y proteger todas las rutas con guards en `proxy.ts`, con logout real desde el sidebar.
