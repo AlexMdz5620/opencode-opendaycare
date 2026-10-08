@@ -13,7 +13,7 @@
 - `LoginForm.tsx` pasa a client con `useActionState(login, …)`: inputs con `name`, sin `defaultValue`, error inline, botón submit deshabilitado con label `Ingresando…` mientras `pending`.
 - Guards de rutas en `utils/supabase/proxy.ts` (`updateSession`): capturar el resultado de `getClaims()`; sin sesión + ruta protegida → redirect `/login`; con sesión en `/login` → redirect `/`; `/activate-account` siempre accesible y sin redirect de salida.
 - Logout: el `Link href="#"` de `Cerrar sesión` en `SidebarContent` (`components/shared/Sidebar.tsx`) pasa a botón con `signOut()` (browser client de `utils/supabase/client.ts`) + navegación a `/login`. Como el drawer mobile reutiliza `SidebarContent`, cubre desktop y mobile.
-- Paso manual documentado: crear `alex@google.com` / `Abc123456@` (autoconfirmado) en Supabase Dashboard → Authentication → Users.
+- Paso manual documentado: crear `alex@google.com` / `Abc123456@` (autoconfirmado) en Supabase Dashboard → Authentication → Users. _Hecho vía migraciones en lugar del Dashboard (desviación aprobada, ver Decisions)._
 - Ya vienen del pull (commit `6348217`, sin cambios del spec): `@supabase/ssr@^0.12.7`, `@supabase/supabase-js@^2.117.3`, `utils/supabase/{client,server,proxy}.ts`, `proxy.ts` raíz con matcher, `.env.template` completo.
 
 **Out of scope (for future specs):**
@@ -21,7 +21,7 @@
 - Signup / activación por código de invitación real (requiere tabla `invitations`).
 - Flujo de `¿Olvidaste tu contraseña?`.
 - FK `users.id` → `auth.users(id)` y trigger `AFTER INSERT` sobre `public.users` (SPEC 08 lo difirió; spec futura en `specs/database/`).
-- Mostrar el usuario real en la UI (`SIDEBAR_USER` y autor de los posts siguen mocks).
+- Mostrar el usuario real en la UI (autor de los posts y avatar del `Composer` siguen mocks). _El sidebar footer con nombre/inicial real se agregó como adición solicitada por el usuario fuera del alcance original, ver Decisions._
 - Políticas RLS sobre `users`, Edge Functions, protección de rutas de API.
 
 ## Data model
@@ -45,19 +45,19 @@ interface LoginState {
 
 ## Acceptance criteria
 
-- [ ] Con sesión anónima, `/` y `/kids` redirigen a `/login`.
-- [ ] `/login` y `/activate-account` son accesibles sin sesión.
-- [ ] Login con `alex@google.com` / `Abc123456@` redirige a `/`.
-- [ ] Recargar en `/` mantiene la sesión (no vuelve a `/login`).
-- [ ] Con sesión, visitar `/login` redirige a `/`.
-- [ ] Contraseña incorrecta muestra `Email o contraseña incorrectos` en rojo y no navega.
-- [ ] Email o contraseña vacíos muestran `Este campo es obligatorio` y no envían.
-- [ ] El botón `Iniciar sesión` muestra `Ingresando…` y está deshabilitado mientras se procesa.
-- [ ] El campo EMAIL ya no tiene `defaultValue`.
-- [ ] `Cerrar sesión` (sidebar desktop y drawer mobile) cierra sesión y aterriza en `/login`.
-- [ ] Tras el logout, `/` sin sesión redirige a `/login`.
-- [ ] Sin errores de consola en `/`, `/login` y `/kids`.
-- [ ] `npm run lint` y `npx tsc --noEmit` pasan sin errores.
+- [x] Con sesión anónima, `/` y `/kids` redirigen a `/login`.
+- [x] `/login` y `/activate-account` son accesibles sin sesión.
+- [x] Login con `alex@google.com` / `Abc123456@` redirige a `/`.
+- [x] Recargar en `/` mantiene la sesión (no vuelve a `/login`).
+- [x] Con sesión, visitar `/login` redirige a `/`.
+- [x] Contraseña incorrecta muestra `Email o contraseña incorrectos` en rojo y no navega.
+- [x] Email o contraseña vacíos muestran `Este campo es obligatorio` y no envían.
+- [x] El botón `Iniciar sesión` muestra `Ingresando…` y está deshabilitado mientras se procesa.
+- [x] El campo EMAIL ya no tiene `defaultValue`.
+- [x] `Cerrar sesión` (sidebar desktop y drawer mobile) cierra sesión y aterriza en `/login`.
+- [x] Tras el logout, `/` sin sesión redirige a `/login`.
+- [x] Sin errores de consola en `/`, `/login` y `/kids`.
+- [x] `npm run lint` y `npx tsc --noEmit` pasan sin errores.
 
 ## Decisions
 
@@ -69,6 +69,9 @@ interface LoginState {
 - **Sí:** vaciar el `defaultValue`. **No:** conservar el mock del calco (contradice "real contra Supabase").
 - **Sí:** FK + trigger users↔auth.users en spec futura de `specs/database/`. **No:** migración en esta spec.
 - **Sí:** Alex creado a mano en el Dashboard con las credenciales de SPEC 08. **No:** `INSERT` en `auth.users` ni Admin API.
+- **Sí (desviación aprobada por el usuario durante la implementación):** crear el usuario de Auth con `apply_migration` en lugar del Dashboard: migraciones `seed_alex_auth_user` (bcrypt vía `extensions.crypt`, `email_confirmed_at = now()` autoconfirmado, `identity` email) + `fix_alex_auth_user_email_change` (GoTrue escanea `email_change` como `string`; `NULL` rompía `/token` con 500). **No:** columna de password en `public.users` — se mantiene la decisión de SPEC 08 (el password vive solo en `auth.users.encrypted_password`).
+- **Sí (desviación aprobada):** restaurar la fila seed de `public.users` (había desaparecido: 0 filas) con la migración `restore_users_seed`, idempotente (`not exists`). **No:** re-sembrar con SQL suelto fuera de migración.
+- **Sí (adición solicitada por el usuario, fuera del alcance original):** sidebar footer con el usuario real — `SidebarContent` lee la sesión con el browser client (`getSession`) y muestra `full_name` + inicial + `role · room` desde `raw_user_meta_data` (migración `update_alex_auth_user_metadata`); fallback al email o al mock `SIDEBAR_USER`. **No:** leer `public.users` (RLS sin políticas la bloquea) ni agregar políticas RLS (queda para la spec de perfil); **no:** tocar el avatar del `Composer` ni el autor de los posts (siguen mocks).
 - **Sí:** error genérico de credenciales + patrón de campo vacío de SPEC 04/05. **No:** exponer el mensaje crudo de Supabase.
 - **Sí:** infraestructura tomada del pull tal cual (`package.json` y `.env.template` intactos). **No:** reinstalar deps ni reescribir helpers.
 
