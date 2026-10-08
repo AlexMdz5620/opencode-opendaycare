@@ -1,8 +1,16 @@
+"use client";
+
 import Link from "next/link";
+import { useActionState } from "react";
+import { login, type LoginState } from "@/app/login/actions";
+
+const initialState: LoginState = {};
 
 export function LoginForm() {
+  const [state, formAction, pending] = useActionState(login, initialState);
+
   return (
-    <div className="w-full max-w-[392px]">
+    <form action={formAction} className="w-full max-w-[392px]">
       <h2 className="m-0 mb-[6px] font-display text-[30px] font-semibold text-[#3F362E]">
         Iniciar sesión
       </h2>
@@ -18,8 +26,8 @@ export function LoginForm() {
       </label>
       <input
         id="login-email"
+        name="email"
         type="email"
-        defaultValue="caro@opendaycare.com"
         className="mb-[18px] w-full rounded-[14px] border-[1.5px] border-[#EADFD0] bg-white px-4 py-[14px] text-[15px] text-[#3F362E] placeholder:text-[#B6A99B] focus:outline-none"
       />
 
@@ -31,6 +39,7 @@ export function LoginForm() {
       </label>
       <input
         id="login-password"
+        name="password"
         type="password"
         placeholder="••••••••"
         className="mb-[10px] w-full rounded-[14px] border-[1.5px] border-[#EADFD0] bg-white px-4 py-[14px] text-[15px] text-[#3F362E] placeholder:text-[#B6A99B] focus:outline-none"
@@ -41,11 +50,18 @@ export function LoginForm() {
         </span>
       </div>
 
+      {state.error && (
+        <p className="mb-4 text-[14px] font-semibold text-[#D9583C]">
+          {state.error}
+        </p>
+      )}
+
       <button
-        type="button"
-        className="block w-full cursor-pointer rounded-[15px] bg-[linear-gradient(180deg,#F4977E,#EE8164)] py-[15px] text-[16px] font-extrabold text-white shadow-[0_10px_22px_-8px_rgba(238,129,100,.7)]"
+        type="submit"
+        disabled={pending}
+        className="block w-full cursor-pointer rounded-[15px] bg-[linear-gradient(180deg,#F4977E,#EE8164)] py-[15px] text-[16px] font-extrabold text-white shadow-[0_10px_22px_-8px_rgba(238,129,100,.7)] disabled:cursor-not-allowed disabled:opacity-70"
       >
-        Iniciar sesión
+        {pending ? "Ingresando…" : "Iniciar sesión"}
       </button>
 
       <p className="mb-0 mt-6 text-center text-[14.5px] text-[#94887B]">
@@ -57,6 +73,6 @@ export function LoginForm() {
           Activá tu cuenta
         </Link>
       </p>
-    </div>
+    </form>
   );
 }
