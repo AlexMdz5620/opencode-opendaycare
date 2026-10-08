@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { NAV_ITEMS, SIDEBAR_USER } from "@/app/_data/mock";
-import type { NavIcon } from "@/app/_data/mock";
+import type { NavIcon, SidebarUser } from "@/app/_data/mock";
 import {
   BellIcon,
   HomeIcon,
@@ -14,6 +15,7 @@ import {
   UserIcon,
 } from "@/components/shared/icons";
 import { useFeed } from "@/components/home/FeedContext";
+import { createClient } from "@/utils/supabase/client";
 
 const NAV_ICONS = {
   home: HomeIcon,
@@ -30,7 +32,45 @@ function isActivePath(pathname: string, href: string): boolean {
 
 export function SidebarContent() {
   const pathname = usePathname();
+  const router = useRouter();
   const { openCreate } = useFeed();
+  const [sidebarUser, setSidebarUser] = useState<SidebarUser>(SIDEBAR_USER);
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      const user = session?.user;
+      if (!user) return;
+
+      const metadata = (user.user_metadata ?? {}) as Record<string, unknown>;
+      const fullName =
+        typeof metadata.full_name === "string" ? metadata.full_name : "";
+      const emailLocal = (user.email ?? "").split("@")[0];
+      const name =
+        fullName ||
+        (emailLocal
+          ? emailLocal.charAt(0).toUpperCase() + emailLocal.slice(1)
+          : "");
+
+      if (!name) return;
+
+      const role = typeof metadata.role === "string" ? metadata.role : "";
+      const room = typeof metadata.room === "string" ? metadata.room : "";
+
+      setSidebarUser({
+        name,
+        initial: name.charAt(0).toUpperCase(),
+        role: role && room ? `${role} · ${room}` : SIDEBAR_USER.role,
+      });
+    });
+  }, []);
+
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+  };
 
   return (
     <>
@@ -80,23 +120,24 @@ export function SidebarContent() {
       <div className="mt-[10px] border-t border-[#ECE0D0] pt-[14px]">
         <div className="flex items-center gap-[11px] px-2 py-1.5">
           <span className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-full bg-accent-soft font-display text-[16px] font-semibold text-white">
-            {SIDEBAR_USER.initial}
+            {sidebarUser.initial}
           </span>
           <span className="min-w-0 flex-1">
             <span className="block text-[14px] font-extrabold text-[#3F362E]">
-              {SIDEBAR_USER.name}
+              {sidebarUser.name}
             </span>
             <span className="block text-[12px] text-[#A89A8B]">
-              {SIDEBAR_USER.role}
+              {sidebarUser.role}
             </span>
           </span>
-          <Link
-            href="#"
+          <button
+            type="button"
+            onClick={handleLogout}
             title="Cerrar sesión"
-            className="flex h-8 w-8 flex-none items-center justify-center rounded-[10px] bg-background text-[#94887B]"
+            className="flex h-8 w-8 flex-none cursor-pointer items-center justify-center rounded-[10px] bg-background text-[#94887B]"
           >
             <LogoutIcon size={16} />
-          </Link>
+          </button>
         </div>
       </div>
     </>
