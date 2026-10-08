@@ -80,23 +80,23 @@ No hay cambios en el repo aún: ninguna estructura TS existente se modifica. Dur
 
 ## Acceptance criteria
 
-- [ ] Existen los tipos `user_role` (`staff`, `parent`, `admin`) y `user_status` (`pending`, `active`) con ese orden exacto.
-- [ ] `public.users` existe con las 11 columnas del Data model.
-- [ ] `daycare_id` es `NOT NULL` con FK → `daycares(id)`.
-- [ ] `email` es `NOT NULL` y `UNIQUE`; `full_name` es `NOT NULL`.
-- [ ] `role` es `NOT NULL` tipo `user_role`; `status` es `NOT NULL` con default `'active'`.
-- [ ] `notify_on_post` y `daily_summary_enabled` son `NOT NULL` con default `true`; `avatar_url` es nullable.
-- [ ] `relrowsecurity` en `pg_class` para `users` es `true`.
-- [ ] `pg_policies` devuelve 0 políticas para `users`.
-- [ ] `select count(*) from public.users` devuelve `1`.
-- [ ] La fila seed es `Alex` / `alex@googl.com` / `staff` / `active` / daycare = `Guardería Sala Soles`.
-- [ ] `users` no tiene columna de contraseña.
-- [ ] `users.id` no tiene FK a `auth.users`.
-- [ ] `supabase_migrations.schema_migrations` contiene `create_users_table`.
-- [ ] `get_advisors(security)` no reporta hallazgos sobre `users` (el INFO `rls_enabled_no_policy` es intencional).
-- [ ] Existe `supabase/migrations/<version>_create_users_table.sql` con el SQL idéntico a la migración remota.
-- [ ] No se agregaron dependencias ni se modificó código de la app.
-- [ ] `git status` no muestra cambios fuera de `specs/08-users-table.md` y el archivo de migración.
+- [x] Existen los tipos `user_role` (`staff`, `parent`, `admin`) y `user_status` (`pending`, `active`) con ese orden exacto.
+- [x] `public.users` existe con las 11 columnas del Data model.
+- [x] `daycare_id` es `NOT NULL` con FK → `daycares(id)`.
+- [x] `email` es `NOT NULL` y `UNIQUE`; `full_name` es `NOT NULL`.
+- [x] `role` es `NOT NULL` tipo `user_role`; `status` es `NOT NULL` con default `'active'`.
+- [x] `notify_on_post` y `daily_summary_enabled` son `NOT NULL` con default `true`; `avatar_url` es nullable.
+- [x] `relrowsecurity` en `pg_class` para `users` es `true`.
+- [x] `pg_policies` devuelve 0 políticas para `users`.
+- [x] `select count(*) from public.users` devuelve `1`.
+- [x] La fila seed es `Alex` / `alex@googl.com` / `staff` / `active` / daycare = `Guardería Sala Soles`.
+- [x] `users` no tiene columna de contraseña.
+- [x] `users.id` no tiene FK a `auth.users`.
+- [x] `supabase_migrations.schema_migrations` contiene `create_users_table`.
+- [x] `get_advisors(security)` no reporta hallazgos sobre `users` (el INFO `rls_enabled_no_policy` es intencional).
+- [x] Existe `supabase/migrations/<version>_create_users_table.sql` con el SQL idéntico a la migración remota.
+- [x] No se agregaron dependencias ni se modificó código de la app.
+- [x] `git status` no muestra cambios fuera de `specs/database/08-users-table.md` y los archivos de migración.
 
 ## Decisions
 
