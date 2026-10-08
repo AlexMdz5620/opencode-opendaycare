@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { NAV_ITEMS, SIDEBAR_USER } from "@/app/_data/mock";
 import type { NavIcon } from "@/app/_data/mock";
 import {
@@ -14,6 +14,7 @@ import {
   UserIcon,
 } from "@/components/shared/icons";
 import { useFeed } from "@/components/home/FeedContext";
+import { createClient } from "@/utils/supabase/client";
 
 const NAV_ICONS = {
   home: HomeIcon,
@@ -30,7 +31,14 @@ function isActivePath(pathname: string, href: string): boolean {
 
 export function SidebarContent() {
   const pathname = usePathname();
+  const router = useRouter();
   const { openCreate } = useFeed();
+
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+  };
 
   return (
     <>
@@ -90,13 +98,14 @@ export function SidebarContent() {
               {SIDEBAR_USER.role}
             </span>
           </span>
-          <Link
-            href="#"
+          <button
+            type="button"
+            onClick={handleLogout}
             title="Cerrar sesión"
-            className="flex h-8 w-8 flex-none items-center justify-center rounded-[10px] bg-background text-[#94887B]"
+            className="flex h-8 w-8 flex-none cursor-pointer items-center justify-center rounded-[10px] bg-background text-[#94887B]"
           >
             <LogoutIcon size={16} />
-          </Link>
+          </button>
         </div>
       </div>
     </>
