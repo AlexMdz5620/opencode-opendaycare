@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { Kid } from "@/app/_data/kids";
-import { loadLocalKids } from "@/app/_data/localKids";
 import { AddKidModal } from "@/components/kids/AddKidModal";
 import { KidsHeader } from "@/components/kids/KidsHeader";
 import { KidsRoomSection } from "@/components/kids/KidsRoomSection";
@@ -23,14 +22,6 @@ export function KidsScreen({
   rooms: RoomOption[];
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [localKids, setLocalKids] = useState<Kid[]>([]);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLocalKids(loadLocalKids());
-  }, []);
-
-  const allKids = [...kids, ...localKids];
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -40,28 +31,33 @@ export function KidsScreen({
         <div className="mx-auto w-full max-w-[880px] px-10 pb-20 pt-[34px]">
           <KidsHeader onAdd={() => setIsModalOpen(true)} />
           <KidsSearch />
-          <div className="flex flex-col gap-[22px]">
-            {rooms.map((room) => {
-              const roomKids = allKids.filter((kid) => kid.room === room.name);
-              if (roomKids.length === 0) return null;
-              return (
-                <KidsRoomSection
-                  key={room.id}
-                  room={room.name}
-                  kids={roomKids}
-                />
-              );
-            })}
-          </div>
+          {kids.length === 0 ? (
+            <p className="py-12 text-center text-[15px] font-semibold text-[#94887B]">
+              Aún no hay niños registrados
+            </p>
+          ) : (
+            <div className="flex flex-col gap-[22px]">
+              {rooms.map((room) => {
+                const roomKids = kids.filter(
+                  (kid) => kid.room === room.name,
+                );
+                if (roomKids.length === 0) return null;
+                return (
+                  <KidsRoomSection
+                    key={room.id}
+                    room={room.name}
+                    kids={roomKids}
+                  />
+                );
+              })}
+            </div>
+          )}
         </div>
       </main>
       {isModalOpen && (
         <AddKidModal
           onClose={() => setIsModalOpen(false)}
-          onSaved={(kid) => {
-            setLocalKids((previous) => [...previous, kid]);
-            setIsModalOpen(false);
-          }}
+          onSaved={() => setIsModalOpen(false)}
         />
       )}
     </div>
