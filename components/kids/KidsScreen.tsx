@@ -56,8 +56,8 @@ export function KidsScreen({
       </main>
       {isModalOpen && (
         <AddKidModal
+          rooms={rooms}
           onClose={() => setIsModalOpen(false)}
-          onSaved={() => setIsModalOpen(false)}
         />
       )}
     </div>
