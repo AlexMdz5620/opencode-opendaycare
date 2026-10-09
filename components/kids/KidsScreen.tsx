@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import type { Kid } from "@/app/_data/kids";
 import { loadLocalKids } from "@/app/_data/localKids";
-import { ROOMS } from "@/app/_data/rooms";
 import { AddKidModal } from "@/components/kids/AddKidModal";
 import { KidsHeader } from "@/components/kids/KidsHeader";
 import { KidsRoomSection } from "@/components/kids/KidsRoomSection";
@@ -11,7 +10,18 @@ import { KidsSearch } from "@/components/kids/KidsSearch";
 import { MobileNav } from "@/components/shared/MobileNav";
 import { Sidebar } from "@/components/shared/Sidebar";
 
-export function KidsScreen({ kids }: { kids: Kid[] }) {
+export interface RoomOption {
+  id: string;
+  name: string;
+}
+
+export function KidsScreen({
+  kids,
+  rooms,
+}: {
+  kids: Kid[];
+  rooms: RoomOption[];
+}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [localKids, setLocalKids] = useState<Kid[]>([]);
 
@@ -31,11 +41,15 @@ export function KidsScreen({ kids }: { kids: Kid[] }) {
           <KidsHeader onAdd={() => setIsModalOpen(true)} />
           <KidsSearch />
           <div className="flex flex-col gap-[22px]">
-            {ROOMS.map((room) => {
-              const roomKids = allKids.filter((kid) => kid.room === room);
+            {rooms.map((room) => {
+              const roomKids = allKids.filter((kid) => kid.room === room.name);
               if (roomKids.length === 0) return null;
               return (
-                <KidsRoomSection key={room} room={room} kids={roomKids} />
+                <KidsRoomSection
+                  key={room.id}
+                  room={room.name}
+                  kids={roomKids}
+                />
               );
             })}
           </div>
