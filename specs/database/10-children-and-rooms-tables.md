@@ -119,32 +119,32 @@ Convención: las salas se ordenan por `created_at` (orden de inserción: Soles, 
 
 ## Acceptance criteria
 
-- [ ] Existen `public.rooms` (4 columnas) y `public.children` (11 columnas) con RLS habilitado.
-- [ ] `child_status` existe con valores `active`, `archived` en ese orden.
-- [ ] `rooms.daycare_id` es `NOT NULL` con FK → `daycares(id)`; `children.room_id` es nullable con FK → `rooms(id)`.
-- [ ] `children.enrolled_at` tiene default `current_date`; `photo_consent` default `true`; `status` default `'active'`.
-- [ ] `select count(*) from public.rooms` devuelve `3` con exactamente `Soles`, `Lunas`, `Estrellas`, todas en Guardería Sala Soles.
-- [ ] `select count(*) from public.children` devuelve `0`.
-- [ ] `pg_policies` muestra 3 policies `to authenticated`: SELECT en `rooms`, SELECT e INSERT en `children`; ninguna para `anon` ni de UPDATE/DELETE.
-- [ ] Existen los índices `rooms_daycare_id_idx` y `children_room_id_idx`.
-- [ ] `supabase_migrations.schema_migrations` contiene `create_rooms_children_tables` y el archivo espejo coincide con esa versión.
-- [ ] `get_advisors(security)` no reporta hallazgos nuevos sobre estas tablas.
-- [ ] `/kids` con sesión muestra el header, el buscador visual y el mensaje `Aún no hay niños registrados` (sin secciones de sala).
-- [ ] `/kids` sin sesión redirige a `/login`.
-- [ ] El `<select>` SALA del modal ofrece `Soles`, `Lunas`, `Estrellas` desde la BD, con `Soles` por defecto.
-- [ ] Con cualquiera de los 3 obligatorios vacío, `Guardar` no cierra ni inserta y ese campo muestra borde rojo + `Este campo es obligatorio`.
-- [ ] Tras guardar completo, el modal se cierra y el niño aparece en `/kids` dentro de su sala con divisor `SALA X · N niños` (singular `1 niño`).
-- [ ] El niño existe en `public.children` con `room_id` correcto, `allergy_tags` como array, `status = 'active'` y `enrolled_at = hoy` (verificable con `execute_sql`).
-- [ ] Recargar `/kids` mantiene el niño (viene de la BD, no de `localStorage`).
-- [ ] Con un niño en `localStorage` de SPEC 04, `/kids` NO lo pinta.
-- [ ] La tarjeta navega a `/kids/<uuid>` y el perfil muestra nombre, `N años · Sala X`, fecha de nacimiento formatada, `Ingreso` = mes de `enrolled_at` y `PADRES VINCULADOS` en estado vacío.
-- [ ] Sin alergias no se renderiza el banner; con alergias el banner muestra el texto completo y la tarjeta el badge con la primera etiqueta en mayúsculas.
-- [ ] `/kids/99` y `/kids/hola` muestran el 404 nativo de Next.js (sin error de consulta por uuid inválido).
-- [ ] El acordeón de salas contrae/expande con `aria-expanded` y todas arrancan expandidas.
-- [ ] `app/_data/kids.ts` y `app/_data/localKids.ts` quedan intactos (solo desconectados de `/kids`).
-- [ ] `npm run lint` pasa sin errores.
-- [ ] `npx tsc --noEmit` pasa sin errores.
-- [ ] No hay errores ni avisos de hidratación en la consola de `/`, `/kids` y el perfil de un niño creado.
+- [x] Existen `public.rooms` (4 columnas) y `public.children` (11 columnas) con RLS habilitado.
+- [x] `child_status` existe con valores `active`, `archived` en ese orden.
+- [x] `rooms.daycare_id` es `NOT NULL` con FK → `daycares(id)`; `children.room_id` es nullable con FK → `rooms(id)`.
+- [x] `children.enrolled_at` tiene default `current_date`; `photo_consent` default `true`; `status` default `'active'`.
+- [x] `select count(*) from public.rooms` devuelve `3` con exactamente `Soles`, `Lunas`, `Estrellas`, todas en Guardería Sala Soles.
+- [x] `select count(*) from public.children` devuelve `0`.
+- [x] `pg_policies` muestra 3 policies `to authenticated`: SELECT en `rooms`, SELECT e INSERT en `children`; ninguna para `anon` ni de UPDATE/DELETE.
+- [x] Existen los índices `rooms_daycare_id_idx` y `children_room_id_idx`.
+- [x] `supabase_migrations.schema_migrations` contiene `create_rooms_children_tables` y el archivo espejo coincide con esa versión.
+- [x] `get_advisors(security)` no reporta hallazgos nuevos sobre estas tablas.
+- [x] `/kids` con sesión muestra el header, el buscador visual y el mensaje `Aún no hay niños registrados` (sin secciones de sala).
+- [x] `/kids` sin sesión redirige a `/login`.
+- [x] El `<select>` SALA del modal ofrece `Soles`, `Lunas`, `Estrellas` desde la BD, con `Soles` por defecto.
+- [x] Con cualquiera de los 3 obligatorios vacío, `Guardar` no cierra ni inserta y ese campo muestra borde rojo + `Este campo es obligatorio`.
+- [x] Tras guardar completo, el modal se cierra y el niño aparece en `/kids` dentro de su sala con divisor `SALA X · N niños` (singular `1 niño`).
+- [x] El niño existe en `public.children` con `room_id` correcto, `allergy_tags` como array, `status = 'active'` y `enrolled_at = hoy` (verificable con `execute_sql`).
+- [x] Recargar `/kids` mantiene el niño (viene de la BD, no de `localStorage`).
+- [x] Con un niño en `localStorage` de SPEC 04, `/kids` NO lo pinta.
+- [x] La tarjeta navega a `/kids/<uuid>` y el perfil muestra nombre, `N años · Sala X`, fecha de nacimiento formatada, `Ingreso` = mes de `enrolled_at` y `PADRES VINCULADOS` en estado vacío.
+- [x] Sin alergias no se renderiza el banner; con alergias el banner muestra el texto completo y la tarjeta el badge con la primera etiqueta en mayúsculas.
+- [x] `/kids/99` y `/kids/hola` muestran el 404 nativo de Next.js (sin error de consulta por uuid inválido).
+- [x] El acordeón de salas contrae/expande con `aria-expanded` y todas arrancan expandidas.
+- [x] `app/_data/kids.ts` y `app/_data/localKids.ts` quedan intactos (solo desconectados de `/kids`).
+- [x] `npm run lint` pasa sin errores.
+- [x] `npx tsc --noEmit` pasa sin errores.
+- [x] No hay errores ni avisos de hidratación en la consola de `/`, `/kids` y el perfil de un niño creado.
 
 ## Decisions
 
