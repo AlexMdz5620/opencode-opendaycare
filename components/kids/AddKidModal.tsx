@@ -1,14 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import type { Kid } from "@/app/_data/kids";
-import { saveLocalKid } from "@/app/_data/localKids";
-import { ROOMS, type Room } from "@/app/_data/rooms";
+import { useEffect, useState, useActionState } from "react";
+import { addChild, type AddKidState } from "@/app/kids/actions";
+import type { RoomOption } from "@/components/kids/KidsScreen";
 import { ChevronDownIcon } from "@/components/shared/icons";
 
 interface AddKidModalProps {
   onClose: () => void;
-  onSaved: (kid: Kid) => void;
+  rooms: RoomOption[];
 }
 
 interface FormErrors {
@@ -18,6 +17,8 @@ interface FormErrors {
 }
 
 const EMPTY_ERRORS: FormErrors = { name: false, birthDate: false, room: false };
+
+const initialState: AddKidState = {};
 
 const LABEL_CLASS =
   "mb-2 text-[12px] font-extrabold tracking-[.7px] text-[#94887B]";
@@ -37,13 +38,17 @@ function ErrorMessage() {
   );
 }
 
-export function AddKidModal({ onClose, onSaved }: AddKidModalProps) {
+export function AddKidModal({ onClose, rooms }: AddKidModalProps) {
   const [name, setName] = useState("");
   const [birthDate, setBirthDate] = useState("");
-  const [room, setRoom] = useState<Room>(ROOMS[0]);
+  const [roomId, setRoomId] = useState(
+    () =>
+      rooms.find((room) => room.name === "Soles")?.id ?? rooms[0]?.id ?? "",
+  );
   const [allergies, setAllergies] = useState("");
   const [notes, setNotes] = useState("");
   const [errors, setErrors] = useState<FormErrors>(EMPTY_ERRORS);
+  const [state, formAction, pending] = useActionState(addChild, initialState);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -53,23 +58,18 @@ export function AddKidModal({ onClose, onSaved }: AddKidModalProps) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onClose]);
 
+  useEffect(() => {
+    if (state.success) onClose();
+  }, [state.success, onClose]);
+
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
     const next: FormErrors = {
       name: !name.trim(),
       birthDate: !birthDate,
-      room: !room,
+      room: !roomId,
     };
     setErrors(next);
-    if (next.name || next.birthDate || next.room) return;
-    const kid = saveLocalKid({
-      name: name.trim(),
-      birthDate,
-      room,
-      allergies: allergies.trim() ? allergies.trim() : undefined,
-      notes: notes.trim() ? notes.trim() : undefined,
-    });
-    onSaved(kid);
+    if (next.name || next.birthDate || next.room) event.preventDefault();
   }
 
   return (
@@ -83,6 +83,7 @@ export function AddKidModal({ onClose, onSaved }: AddKidModalProps) {
         role="dialog"
         aria-modal="true"
         aria-label="Agregar niño"
+        action={formAction}
         onSubmit={handleSubmit}
         className="max-h-[calc(100dvh_-_32px)] w-full max-w-[520px] overflow-y-auto overflow-x-hidden rounded-[24px] border border-[#ECE0D0] bg-[#FBF4EC] shadow-[0_20px_50px_-24px_rgba(63,54,46,.35)] sm:max-h-[calc(100dvh_-_48px)]"
       >
@@ -99,17 +100,25 @@ export function AddKidModal({ onClose, onSaved }: AddKidModalProps) {
           </span>
           <button
             type="submit"
-            className="cursor-pointer text-[15px] font-extrabold text-[#D9583C]"
+            disabled={pending}
+            className="cursor-pointer text-[15px] font-extrabold text-[#D9583C] disabled:cursor-not-allowed disabled:opacity-60"
           >
             Guardar
           </button>
         </div>
 
         <div className="p-[26px] pt-6">
+          {state.error && (
+            <p className="mb-[14px] text-[13px] font-bold text-[#D9583C]">
+              {state.error}
+            </p>
+          )}
+
           <div className="mb-[18px]">
             <div className={LABEL_CLASS}>NOMBRE COMPLETO</div>
             <input
               type="text"
+              name="name"
               value={name}
               onChange={(event) => setName(event.target.value)}
               placeholder="Ej. Martina López"
@@ -123,6 +132,7 @@ export function AddKidModal({ onClose, onSaved }: AddKidModalProps) {
               <div className={LABEL_CLASS}>FECHA DE NACIMIENTO</div>
               <input
                 type="date"
+                name="birth_date"
                 value={birthDate}
                 onChange={(event) => setBirthDate(event.target.value)}
                 className={inputClass(errors.birthDate)}
@@ -133,15 +143,14 @@ export function AddKidModal({ onClose, onSaved }: AddKidModalProps) {
               <div className={LABEL_CLASS}>SALA</div>
               <div className="relative">
                 <select
-                  value={room}
-                  onChange={(event) =>
-                    setRoom(event.target.value as Room)
-                  }
+                  name="room_id"
+                  value={roomId}
+                  onChange={(event) => setRoomId(event.target.value)}
                   className={`${inputClass(errors.room)} appearance-none pr-10 font-bold`}
                 >
-                  {ROOMS.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
+                  {rooms.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.name}
                     </option>
                   ))}
                 </select>
@@ -158,6 +167,7 @@ export function AddKidModal({ onClose, onSaved }: AddKidModalProps) {
             <div className={LABEL_CLASS}>ALERGIAS (ETIQUETAS)</div>
             <input
               type="text"
+              name="allergies"
               value={allergies}
               onChange={(event) => setAllergies(event.target.value)}
               placeholder="Ej. Maní, Lactosa"
@@ -168,6 +178,7 @@ export function AddKidModal({ onClose, onSaved }: AddKidModalProps) {
           <div>
             <div className={LABEL_CLASS}>NOTAS MÉDICAS</div>
             <textarea
+              name="notes"
               value={notes}
               onChange={(event) => setNotes(event.target.value)}
               placeholder="Indicaciones, medicación, contactos…"

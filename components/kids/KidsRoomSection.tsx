@@ -2,13 +2,12 @@
 
 import { useState } from "react";
 import type { Kid } from "@/app/_data/kids";
-import type { Room } from "@/app/_data/rooms";
 import { KidCard } from "@/components/kids/KidCard";
 import { KidsRoomLabel } from "@/components/kids/KidsRoomLabel";
 import { ChevronDownIcon } from "@/components/shared/icons";
 
 interface KidsRoomSectionProps {
-  room: Room;
+  room: string;
   kids: Kid[];
 }
 

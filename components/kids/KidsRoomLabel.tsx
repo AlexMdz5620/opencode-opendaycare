@@ -1,7 +1,5 @@
-import type { Room } from "@/app/_data/rooms";
-
 interface KidsRoomLabelProps {
-  room: Room;
+  room: string;
   count: number;
 }
 
