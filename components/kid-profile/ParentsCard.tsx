@@ -32,9 +32,11 @@ function LinkParentButton({ onClick }: { onClick: () => void }) {
 
 export function ParentsCard({
   parents,
+  kidId,
   kidName,
 }: {
   parents: KidParent[];
+  kidId: string;
   kidName: string;
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -86,6 +88,7 @@ export function ParentsCard({
       </div>
       {isModalOpen && (
         <LinkParentModal
+          kidId={kidId}
           kidName={kidName}
           onClose={() => setIsModalOpen(false)}
         />

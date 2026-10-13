@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useActionState } from "react";
+import { createInvitation, type CreateInvitationState } from "@/app/kids/actions";
 import { CloseIcon, InfoIcon, SendIcon } from "@/components/shared/icons";
 
 interface LinkParentModalProps {
+  kidId: string;
   kidName: string;
   onClose: () => void;
 }
@@ -23,6 +25,8 @@ const LABEL_CLASS =
   "mb-2 text-[12px] font-extrabold tracking-[.7px] text-[#94887B]";
 
 const INVITE_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+const initialState: CreateInvitationState = {};
 
 function generateInviteCode(): string {
   let code = "";
@@ -46,12 +50,20 @@ function ErrorMessage({ children }: { children: string }) {
   );
 }
 
-export function LinkParentModal({ kidName, onClose }: LinkParentModalProps) {
+export function LinkParentModal({
+  kidId,
+  kidName,
+  onClose,
+}: LinkParentModalProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [relation, setRelation] = useState<Relation>("Mamá");
   const [code] = useState(() => generateInviteCode());
   const [errors, setErrors] = useState<FormErrors>({});
+  const [state, formAction, pending] = useActionState(
+    createInvitation,
+    initialState,
+  );
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -61,8 +73,11 @@ export function LinkParentModal({ kidName, onClose }: LinkParentModalProps) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onClose]);
 
+  useEffect(() => {
+    if (state.success) onClose();
+  }, [state.success, onClose]);
+
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
     const next: FormErrors = {};
     if (!name.trim()) next.name = true;
     if (!email.trim()) {
@@ -71,11 +86,11 @@ export function LinkParentModal({ kidName, onClose }: LinkParentModalProps) {
       next.email = "format";
     }
     setErrors(next);
-    if (next.name || next.email) return;
-    onClose();
+    if (next.name || next.email) event.preventDefault();
   }
 
   const firstName = kidName.split(" ")[0];
+  const serverError = state.error;
 
   return (
     <div
@@ -89,6 +104,7 @@ export function LinkParentModal({ kidName, onClose }: LinkParentModalProps) {
         aria-modal="true"
         aria-label="Vincular padre"
         noValidate
+        action={formAction}
         onSubmit={handleSubmit}
         className="max-h-[calc(100dvh_-_32px)] w-full max-w-[480px] overflow-y-auto overflow-x-hidden rounded-[24px] border border-[#ECE0D0] bg-[#FBF4EC] shadow-[0_20px_50px_-24px_rgba(63,54,46,.35)] sm:max-h-[calc(100dvh_-_48px)]"
       >
@@ -110,6 +126,16 @@ export function LinkParentModal({ kidName, onClose }: LinkParentModalProps) {
         </div>
 
         <div className="p-[26px] pt-6">
+          <input type="hidden" name="kid_id" value={kidId} />
+          <input type="hidden" name="relation" value={relation} />
+          <input type="hidden" name="code" value={code} />
+
+          {serverError && (
+            <p className="mb-[14px] text-[13px] font-bold text-[#D9583C]">
+              {serverError}
+            </p>
+          )}
+
           <div className="mb-5 flex gap-[11px] rounded-[14px] bg-[#E3ECFB] px-4 py-[13px]">
             <InfoIcon size={20} className="mt-[1px] flex-none text-[#4E72C8]" />
             <span className="text-[13.5px] leading-[1.45] text-[#3F5694]">
@@ -188,7 +214,8 @@ export function LinkParentModal({ kidName, onClose }: LinkParentModalProps) {
 
           <button
             type="submit"
-            className="flex w-full cursor-pointer items-center justify-center gap-[9px] rounded-[14px] bg-gradient-to-b from-[#F4977E] to-[#EE8164] px-[14px] py-[14px] text-[15.5px] font-extrabold text-white shadow-[0_10px_22px_-8px_rgba(238,129,100,.7)]"
+            disabled={pending}
+            className="flex w-full cursor-pointer items-center justify-center gap-[9px] rounded-[14px] bg-gradient-to-b from-[#F4977E] to-[#EE8164] px-[14px] py-[14px] text-[15.5px] font-extrabold text-white shadow-[0_10px_22px_-8px_rgba(238,129,100,.7)] disabled:cursor-not-allowed disabled:opacity-60"
           >
             <SendIcon size={19} />
             Enviar invitación
