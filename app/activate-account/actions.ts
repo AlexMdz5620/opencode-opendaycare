@@ -32,11 +32,28 @@ export async function activateAccount(
 
   const supabase = await createClient();
 
-  const { data: signUpData, error: signUpError } =
-    await supabase.auth.signUp({
-      email: email.trim(),
-      password,
-    });
+  const { data: invitationRows } = await supabase.rpc(
+    "get_invitation_by_code",
+    { p_code: code.trim() },
+  );
+  const invitation = Array.isArray(invitationRows)
+    ? invitationRows[0]
+    : undefined;
+  if (
+    !invitation ||
+    invitation.status !== "pending" ||
+    new Date(invitation.expires_at) <= new Date()
+  ) {
+    return { error: "Código inválido o expirado" };
+  }
+
+  const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+    email: email.trim(),
+    password,
+    options: {
+      data: { full_name: invitation.full_name },
+    },
+  });
 
   if (signUpError) {
     if (
