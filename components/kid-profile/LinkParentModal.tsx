@@ -148,6 +148,7 @@ export function LinkParentModal({
             <div className={LABEL_CLASS}>NOMBRE DEL PADRE/MADRE</div>
             <input
               type="text"
+              name="name"
               value={name}
               onChange={(event) => setName(event.target.value)}
               placeholder="Ej. Diego Fernández"
@@ -160,6 +161,7 @@ export function LinkParentModal({
             <div className={LABEL_CLASS}>EMAIL</div>
             <input
               type="email"
+              name="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="correo@ejemplo.com"
