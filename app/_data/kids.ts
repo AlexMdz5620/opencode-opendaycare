@@ -1,6 +1,6 @@
 export interface KidParent {
   name: string; // "Lucía Fernández"
-  relation: "Mamá" | "Papá";
+  relation: "Mamá" | "Papá" | "Tutor/a";
   status: "active" | "pending"; // → badge ACTIVA / PENDIENTE
   note: string; // "activa" | "invitación enviada"
   initial: string; // "L"

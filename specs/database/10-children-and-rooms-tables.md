@@ -1,6 +1,6 @@
 # SPEC 10 — Tablas `rooms` y `children` con 3 salas sembradas y `/kids` conectado a Supabase
 
-> **Estado:** Approved
+> **Estado:** Implemented
 > **Depende de:** SPEC 02, SPEC 04, SPEC 07, SPEC 09
 > **Fecha:** 2026-10-09
 > **Objetivo:** Crear las tablas `rooms` y `children` con RLS y políticas para `authenticated`, sembrar 3 salas por defecto (Soles, Lunas, Estrellas) sin niños, y que `/kids` y `/kids/[id]` listen y creen niños desde Supabase en lugar de mocks o localStorage.

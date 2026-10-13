@@ -1,11 +1,12 @@
 "use client";
 
-import { SIDEBAR_USER } from "@/app/_data/mock";
 import { CameraIcon } from "@/components/shared/icons";
 import { useFeed } from "@/components/home/FeedContext";
+import { useSessionUser } from "@/components/shared/useSessionUser";
 
 export function Composer() {
   const { openCreate } = useFeed();
+  const sessionUser = useSessionUser();
 
   return (
     <button
@@ -14,7 +15,7 @@ export function Composer() {
       className="mb-6 flex w-full cursor-pointer items-center gap-[14px] rounded-[18px] border border-[#ECE0D0] bg-[#FFFDF9] px-[18px] py-[14px] text-left shadow-[0_4px_14px_-10px_rgba(120,90,60,.4)]"
     >
       <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-accent-soft font-display text-[16px] font-semibold text-white">
-        {SIDEBAR_USER.initial}
+        {sessionUser?.initial ?? ""}
       </span>
       <span className="flex-1 text-[15px] text-[#A89A8B]">
         Compartí un momento…
