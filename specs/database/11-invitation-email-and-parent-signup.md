@@ -1,6 +1,6 @@
 # SPEC 11 — Invitación de padre por correo (Resend) y registro con código
 
-> **Estado:** Approved
+> **Estado:** Implemented
 > **Depende de:** SPEC 03, SPEC 05, SPEC 08, SPEC 09, SPEC 10
 > **Fecha:** 2026-10-13
 > **Objetivo:** Que el staff cree una invitación real desde el modal del perfil del niño, que el padre reciba el código por correo vía Resend y que al activar su cuenta en `/activate-account` quede vinculado al niño en `parent_children`.
@@ -123,28 +123,28 @@ Convención `invited_by`: se resuelve por `select id from users where email = <e
 
 ## Acceptance criteria
 
-- [ ] Existen `relationship_type` (`father`, `mother`, `guardian`) e `invitation_status` (`pending`, `accepted`, `expired`, `cancelled`) en ese orden.
-- [ ] `public.invitations` tiene las 11 columnas del Data model con `code UNIQUE` y `status` default `'pending'`; RLS habilitado.
-- [ ] `public.parent_children` tiene `unique (parent_id, child_id)`; RLS habilitado.
-- [ ] `pg_policies`: SELECT en `invitations`, `parent_children` y `users`, INSERT en `invitations`, todas `to authenticated`; ninguna de UPDATE/DELETE ni para `anon`.
-- [ ] Las funciones `get_invitation_by_code` y `accept_invitation` existen como `security definer`.
-- [ ] Los archivos espejo en `supabase/migrations/` coinciden con las versiones de `schema_migrations`.
-- [ ] `get_advisors(security)` no reporta hallazgos nuevos por estas tablas/funciones.
-- [ ] `Enviar invitación` con nombre y email válidos cierra el modal, inserta la invitación con el mismo código del bloque amarillo y `expires_at` = ahora + 7 días.
-- [ ] Llega un correo (Resend) a la dirección ingresada con el código, el link `/activate-account?code=…` y la vigencia de 7 días.
-- [ ] Con `RESEND_API_KEY` inválida, el modal muestra `No se pudo enviar el correo` y no cierra.
-- [ ] La validación del modal no cambia: vacíos → `Este campo es obligatorio`; formato → `Ingresá un email válido`.
-- [ ] El link del correo abre `/activate-account` con el código prellenado y la tarjeta muestra el nombre del niño y su sala reales.
-- [ ] `/activate-account` sin código renderiza el formulario sin errores ni datos reales en la tarjeta.
-- [ ] Código inexistente o vencido → `Código inválido o expirado`, no se crea cuenta ni se navega.
-- [ ] Email ya registrado → `Este email ya tiene una cuenta. Iniciá sesión.` y no navega.
-- [ ] Registro exitoso crea la fila en `public.users` (`role 'parent'`, `id = auth.uid()`), el vínculo en `parent_children` y la invitación queda `accepted` con `accepted_at` (verificable con `execute_sql`).
-- [ ] Tras el registro, el padre aterriza en `/` con sesión activa sin volver a escribir la contraseña.
-- [ ] `ParentsCard` en `/kids/[id]` muestra al padre recién activado con el parentesco elegido en el modal.
-- [ ] Un niño sin vínculos muestra el estado vacío de `PADRES VINCULADOS`.
-- [ ] `npm run lint` pasa sin errores.
-- [ ] `npx tsc --noEmit` pasa sin errores.
-- [ ] Sin errores ni avisos de hidratación en la consola de `/activate-account`, el perfil del niño y `/`.
+- [x] Existen `relationship_type` (`father`, `mother`, `guardian`) e `invitation_status` (`pending`, `accepted`, `expired`, `cancelled`) en ese orden.
+- [x] `public.invitations` tiene las 11 columnas del Data model con `code UNIQUE` y `status` default `'pending'`; RLS habilitado.
+- [x] `public.parent_children` tiene `unique (parent_id, child_id)`; RLS habilitado.
+- [x] `pg_policies`: SELECT en `invitations`, `parent_children` y `users`, INSERT en `invitations`, todas `to authenticated`; ninguna de UPDATE/DELETE ni para `anon`.
+- [x] Las funciones `get_invitation_by_code` y `accept_invitation` existen como `security definer`.
+- [x] Los archivos espejo en `supabase/migrations/` coinciden con las versiones de `schema_migrations`.
+- [x] `get_advisors(security)` no reporta hallazgos nuevos por estas tablas/funciones.
+- [x] `Enviar invitación` con nombre y email válidos cierra el modal, inserta la invitación con el mismo código del bloque amarillo y `expires_at` = ahora + 7 días.
+- [x] Llega un correo (Resend) a la dirección ingresada con el código, el link `/activate-account?code=…` y la vigencia de 7 días.
+- [x] Con `RESEND_API_KEY` inválida, el modal muestra `No se pudo enviar el correo` y no cierra.
+- [x] La validación del modal no cambia: vacíos → `Este campo es obligatorio`; formato → `Ingresá un email válido`.
+- [x] El link del correo abre `/activate-account` con el código prellenado y la tarjeta muestra el nombre del niño y su sala reales.
+- [x] `/activate-account` sin código renderiza el formulario sin errores ni datos reales en la tarjeta.
+- [x] Código inexistente o vencido → `Código inválido o expirado`, no se crea cuenta ni se navega.
+- [x] Email ya registrado → `Este email ya tiene una cuenta. Iniciá sesión.` y no navega.
+- [x] Registro exitoso crea la fila en `public.users` (`role 'parent'`, `id = auth.uid()`), el vínculo en `parent_children` y la invitación queda `accepted` con `accepted_at` (verificable con `execute_sql`).
+- [x] Tras el registro, el padre aterriza en `/` con sesión activa sin volver a escribir la contraseña.
+- [x] `ParentsCard` en `/kids/[id]` muestra al padre recién activado con el parentesco elegido en el modal.
+- [x] Un niño sin vínculos muestra el estado vacío de `PADRES VINCULADOS`.
+- [x] `npm run lint` pasa sin errores.
+- [x] `npx tsc --noEmit` pasa sin errores.
+- [x] Sin errores ni avisos de hidratación en la consola de `/activate-account`, el perfil del niño y `/`.
 
 ## Decisions
 
@@ -170,14 +170,14 @@ Convención `invited_by`: se resuelve por `select id from users where email = <e
 
 ## Risks
 
-| Riesgo | Mitigación |
-| --- | --- |
-| Confirmación de email de Supabase sigue activa → dos correos y bloqueo | Paso manual en Scope + criterio verificable: el padre solo recibe el de Resend. |
-| `get_invitation_by_code` expone datos con un código adivinado | Códigos de 32^5 con `unique`; la función devuelve solo nombre/child/room (los mismos del correo). Sin policy `anon` sobre la tabla. |
-| `accept_invitation` crea `users` y luego falla algo posterior | La función es transaccional (una sentencia); si `signUp` falla, no se llama. Si la invitación es inválida se hace `signOut` + error. |
-| Staff sin fila en `public.users` (email de sesión no matchea) | `createInvitation` devuelve error claro; Alex (seed) siempre matchea. |
-| `ParentsCard` depende de la nueva policy sobre `users` | Criterio verificado con perfil real y con `execute_sql` sobre `pg_policies`. |
-| Sin dominio verificado en Resend, QA limitado al propio email | Registrado en Decisions; el criterio usa la dirección del developer. |
+| Riesgo                                                                 | Mitigación                                                                                                                           |
+| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Confirmación de email de Supabase sigue activa → dos correos y bloqueo | Paso manual en Scope + criterio verificable: el padre solo recibe el de Resend.                                                      |
+| `get_invitation_by_code` expone datos con un código adivinado          | Códigos de 32^5 con `unique`; la función devuelve solo nombre/child/room (los mismos del correo). Sin policy `anon` sobre la tabla.  |
+| `accept_invitation` crea `users` y luego falla algo posterior          | La función es transaccional (una sentencia); si `signUp` falla, no se llama. Si la invitación es inválida se hace `signOut` + error. |
+| Staff sin fila en `public.users` (email de sesión no matchea)          | `createInvitation` devuelve error claro; Alex (seed) siempre matchea.                                                                |
+| `ParentsCard` depende de la nueva policy sobre `users`                 | Criterio verificado con perfil real y con `execute_sql` sobre `pg_policies`.                                                         |
+| Sin dominio verificado en Resend, QA limitado al propio email          | Registrado en Decisions; el criterio usa la dirección del developer.                                                                 |
 
 ## What is **not** in this spec
 
