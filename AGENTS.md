@@ -65,6 +65,7 @@
 ## Agents
 
 - **spec-verifier** (`.opencode/agents/spec-verifier.md`): agente que ejecuta el flujo de `/spec-verify`. Revisa los criterios de aceptación, corrige código fallido, valida con Playwright + Context7 y actualiza los checkboxes de la spec. No hace commits.
+- **react-best-practices** (`.opencode/agents/react-best-practices.md`): agente que aplica mejores prácticas de React a los archivos indicados (`/react-best-practices app/page.tsx ...`). Diagnostica con una checklist (Rules of Hooks, keys, estado derivado, efectos, `"use client"`, TypeScript, accesibilidad), verifica cada recomendación con Context7 (React 19 / Next.js 16 docs), corrige el código, valida con `npm run lint` + `npx tsc --noEmit` y emite un reporte citando las docs. No hace commits.
 
 ## Reglas de código
 

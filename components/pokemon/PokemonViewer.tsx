@@ -1,11 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-} from "@/components/shared/icons";
+import { ChevronLeftIcon, ChevronRightIcon } from "@/components/shared/icons";
 
 interface Pokemon {
   id: number;
@@ -63,52 +60,36 @@ function formatName(name: string) {
 export function PokemonViewer() {
   const [pokemonId, setPokemonId] = useState(FIRST_POKEMON);
   const [pokemon, setPokemon] = useState<Pokemon | null>(null);
-  const [failure, setFailure] = useState<{ id: number; message: string } | null>(
-    null,
-  );
-  const [reloadToken, setReloadToken] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const error = failure && failure.id === pokemonId ? failure.message : null;
-  const isLoading = pokemon?.id !== pokemonId && error === null;
+  const fetchPokemon = useCallback(async (id: number, signal: AbortSignal) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`, {
+        signal,
+      });
+      if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
+      const data: Pokemon = await res.json();
+      setPokemon(data);
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") return;
+      setError("No se pudo cargar el Pokémon. Intenta de nuevo.");
+    } finally {
+      if (!signal.aborted) setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
-
-    async function loadPokemon() {
-      try {
-        const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonId}`, {
-          signal: controller.signal,
-        });
-        if (!res.ok) {
-          throw new Error(`Request failed with status ${res.status}`);
-        }
-        const data: Pokemon = await res.json();
-        if (controller.signal.aborted) return;
-        setPokemon(data);
-        setFailure(null);
-      } catch (err) {
-        if (controller.signal.aborted) return;
-        if (err instanceof DOMException && err.name === "AbortError") return;
-        setFailure({
-          id: pokemonId,
-          message: "No se pudo cargar el Pokémon. Intenta de nuevo.",
-        });
-      }
-    }
-
-    loadPokemon();
+    fetchPokemon(pokemonId, controller.signal);
     return () => controller.abort();
-  }, [pokemonId, reloadToken]);
+  }, [pokemonId, fetchPokemon]);
 
   const goTo = (id: number) => {
     const clamped = Math.min(LAST_POKEMON, Math.max(FIRST_POKEMON, id));
     setPokemonId(clamped);
-    setFailure(null);
-  };
-
-  const retry = () => {
-    setFailure(null);
-    setReloadToken((token) => token + 1);
   };
 
   const artwork =
@@ -140,7 +121,9 @@ export function PokemonViewer() {
             <p className="text-[15px] font-semibold text-[#94887B]">{error}</p>
             <button
               type="button"
-              onClick={retry}
+              onClick={() =>
+                fetchPokemon(pokemonId, new AbortController().signal)
+              }
               className="cursor-pointer rounded-[14px] bg-[linear-gradient(180deg,#F4977E,#EE8164)] px-[18px] py-[11px] text-[14.5px] font-extrabold text-white"
             >
               Reintentar
@@ -203,7 +186,9 @@ export function PokemonViewer() {
                   <dt className="font-bold text-[#94887B]">
                     {STAT_LABELS[stat.name] ?? stat.name}
                   </dt>
-                  <dd className="font-extrabold text-foreground">{base_stat}</dd>
+                  <dd className="font-extrabold text-foreground">
+                    {base_stat}
+                  </dd>
                 </div>
               ))}
             </dl>
