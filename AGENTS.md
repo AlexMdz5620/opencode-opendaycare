@@ -72,6 +72,7 @@ Agentes propios del proyecto, definidos en `.opencode/agents/` (el comando equiv
 - **react-best-practices** (`.opencode/agents/react-best-practices.md`, comando `/react-best-practices`): aplica mejores prácticas de React/Next.js a los archivos indicados, verificando cada recomendación con Context7; corrige el código y valida con `npm run lint` + `npx tsc --noEmit`. No hace commits.
 - **db-migrator** (`.opencode/agents/db-migrator.md`, comando `/db-migrator`): asegura que las migraciones de una spec de `specs/database/` existan (espejo local en `supabase/migrations/` + historial remoto) y las aplica vía MCP `apply_migration` (nunca `execute_sql` para DDL ni Supabase CLI). No hace commits.
 - **accessibility-checker** (`.opencode/agents/accessibility-checker.md`, comando `/accessibility-checker`): audita y corrige accesibilidad **WCAG 2.2 AA** en los archivos indicados (análisis estático + verificación runtime con Playwright) y reporta citando el número de criterio en cada hallazgo. No hace commits.
+- **db-security-auditor** (`.opencode/agents/db-security-auditor.md`, comando `/db-security-auditor`): audita la base de datos contra fugas de datos entre niños y padres (y entre tenants) causadas por RLS/roles mal configurados; demuestra cada fuga simulando JWTs (parent/staff/anon) con `execute_sql` SELECT-only, y remedia vía `apply_migration` solo tras confirmación explícita (con archivo espejo). No hace commits.
 
 ## Reglas de código
 

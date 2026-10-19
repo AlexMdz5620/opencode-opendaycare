@@ -1,6 +1,6 @@
 ---
 description: Verifies and marks a spec's Acceptance criteria. Fixes failing code, checks Next.js best practices via Context7, and validates screens with Playwright screenshots (vision model). Use after /spec-impl or to audit any spec.
-mode: all
+mode: subagent
 model: opencode/mimo-v2.6-flash-free
 permission:
   edit: allow
@@ -54,15 +54,15 @@ Extract from the spec:
 
 Walk the checklist **one item at a time**. For each criterion choose the right evidence method:
 
-| Kind of criterion | How to verify |
-| --- | --- |
-| Visual / screen / responsive | Playwright: navigate, snapshot, screenshot. Compare with your vision: Read the screenshot PNG and `references/screenshots/*.png` when the spec points at them. Note differences concretely. |
-| Text / DOM content | Playwright snapshot / find, or Read the component file. |
-| Console / no errors | `playwright_browser_console_messages` (level: error). |
-| Lint / types | bash: `npm run lint`, `npx tsc --noEmit`. |
+| Kind of criterion                                  | How to verify                                                                                                                                                                                                                       |
+| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Visual / screen / responsive                       | Playwright: navigate, snapshot, screenshot. Compare with your vision: Read the screenshot PNG and `references/screenshots/*.png` when the spec points at them. Note differences concretely.                                         |
+| Text / DOM content                                 | Playwright snapshot / find, or Read the component file.                                                                                                                                                                             |
+| Console / no errors                                | `playwright_browser_console_messages` (level: error).                                                                                                                                                                               |
+| Lint / types                                       | bash: `npm run lint`, `npx tsc --noEmit`.                                                                                                                                                                                           |
 | Fonts, routing, Next.js APIs, Tailwind v4 patterns | **Context7 MCP**: `resolve-library-id` for `next.js` (and `tailwindcss` if relevant) → `query-docs` for the exact pattern. Confirm the code follows the **current** recommendation, not stale training data. Cite the doc you used. |
-| Dark mode / Geist leftovers / file presence | Grep / Read in the repo. |
-| Non-navigation of buttons | Click a representative control with Playwright and confirm the URL/DOM did not change. |
+| Dark mode / Geist leftovers / file presence        | Grep / Read in the repo.                                                                                                                                                                                                            |
+| Non-navigation of buttons                          | Click a representative control with Playwright and confirm the URL/DOM did not change.                                                                                                                                              |
 
 **Vision rule:** whenever the criterion is visual (layout, colors, fonts, screenshots), you MUST Read the screenshot image and compare it against the reference image or the stated expectation. Do not guess from the accessibility snapshot alone.
 
