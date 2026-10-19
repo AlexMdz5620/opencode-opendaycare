@@ -66,10 +66,12 @@
 
 ## Agents
 
-- **spec-verifier** (`.opencode/agents/spec-verifier.md`): agente que ejecuta el flujo de `/spec-verify`. Revisa los criterios de aceptación, corrige código fallido, valida con Playwright + Context7 y actualiza los checkboxes de la spec. No hace commits.
-- **react-best-practices** (`.opencode/agents/react-best-practices.md`): agente que aplica mejores prácticas de React a los archivos indicados (`/react-best-practices app/page.tsx ...`). Diagnostica con una checklist (Rules of Hooks, keys, estado derivado, efectos, `"use client"`, TypeScript, accesibilidad), verifica cada recomendación con Context7 (React 19 / Next.js 16 docs), corrige el código, valida con `npm run lint` + `npx tsc --noEmit` y emite un reporte citando las docs. No hace commits.
-- **db-migrator** (`.opencode/agents/db-migrator.md`): subagente que asegura que las migraciones de una spec de `specs/database/` existan (archivo espejo en `supabase/migrations/` + historial remoto en `schema_migrations`) y las aplica vía MCP `apply_migration` (nunca `execute_sql` para DDL, nunca Supabase CLI — patrón SPEC 07–11). Auditoría remoto vs local, espejos faltantes, auto-aplica salvo SQL destructivo (pregunta), verifica con `list_migrations`/`get_advisors` y emite un reporte. No hace commits. Se invoca con `/db-migrator <spec>`.
-- **accessibility-checker** (`.opencode/agents/accessibility-checker.md`): agente que audita y corrige accesibilidad **WCAG 2.2 AA** en los archivos indicados (`/accessibility-checker app/page.tsx ...`). Diagnostica con una checklist de criterios (1.1.1, 1.4.3, 2.4.7, 4.1.2, etc. — estática sobre el código + verificación runtime con Playwright: foco, orden de tabulación, roles/estados, contraste computado, evidencia en `.playwright-mcp/`), corrige el código, valida con `npm run lint` + `npx tsc --noEmit` y emite un reporte citando el número de criterio en cada hallazgo. No hace commits.
+Agentes propios del proyecto, definidos en `.opencode/agents/` (el comando equivalente vive en `.opencode/commands/`). Ninguno hace commits.
+
+- **spec-verifier** (`.opencode/agents/spec-verifier.md`, comando `/spec-verify`): verifica y marca los criterios de aceptación de una spec; corrige código fallido, valida con Playwright + Context7 y actualiza los checkboxes. No hace commits.
+- **react-best-practices** (`.opencode/agents/react-best-practices.md`, comando `/react-best-practices`): aplica mejores prácticas de React/Next.js a los archivos indicados, verificando cada recomendación con Context7; corrige el código y valida con `npm run lint` + `npx tsc --noEmit`. No hace commits.
+- **db-migrator** (`.opencode/agents/db-migrator.md`, comando `/db-migrator`): asegura que las migraciones de una spec de `specs/database/` existan (espejo local en `supabase/migrations/` + historial remoto) y las aplica vía MCP `apply_migration` (nunca `execute_sql` para DDL ni Supabase CLI). No hace commits.
+- **accessibility-checker** (`.opencode/agents/accessibility-checker.md`, comando `/accessibility-checker`): audita y corrige accesibilidad **WCAG 2.2 AA** en los archivos indicados (análisis estático + verificación runtime con Playwright) y reporta citando el número de criterio en cada hallazgo. No hace commits.
 
 ## Reglas de código
 
