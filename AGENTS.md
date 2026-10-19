@@ -55,6 +55,8 @@
 - **Especificaciones de base de datos**: cualquier spec que tenga que ver con la base de datos (esquema, tablas, columnas, migraciones, RLS, índices, funciones, triggers, etc.) debe guardarse en `specs/database/` (ej. `specs/database/01-users-table.md`), no en la raíz de `specs/`.
 - /spec-impl Usaremos esta skill para hacer las implementaciones.
 - /spec-verify Comando de Verify Spec: verifica y marca los criterios de aceptación de una spec (código, UI, docs de Next.js y screenshots).
+- /db-migrator Comando de DB Migrator: asegura que las migraciones de una spec de `specs/database/` existan (espejo local + historial remoto) y las aplica vía MCP `apply_migration`.
+- /accessibility-checker Comando de Accessibilidad: audita y corrige WCAG 2.2 AA en los archivos indicados (diagnóstico estático + verificación runtime con Playwright) y reporta citando los criterios WCAG.
 
 ## Supabase Skills (instaladas en `.agents/skills/`)
 
@@ -66,6 +68,8 @@
 
 - **spec-verifier** (`.opencode/agents/spec-verifier.md`): agente que ejecuta el flujo de `/spec-verify`. Revisa los criterios de aceptación, corrige código fallido, valida con Playwright + Context7 y actualiza los checkboxes de la spec. No hace commits.
 - **react-best-practices** (`.opencode/agents/react-best-practices.md`): agente que aplica mejores prácticas de React a los archivos indicados (`/react-best-practices app/page.tsx ...`). Diagnostica con una checklist (Rules of Hooks, keys, estado derivado, efectos, `"use client"`, TypeScript, accesibilidad), verifica cada recomendación con Context7 (React 19 / Next.js 16 docs), corrige el código, valida con `npm run lint` + `npx tsc --noEmit` y emite un reporte citando las docs. No hace commits.
+- **db-migrator** (`.opencode/agents/db-migrator.md`): subagente que asegura que las migraciones de una spec de `specs/database/` existan (archivo espejo en `supabase/migrations/` + historial remoto en `schema_migrations`) y las aplica vía MCP `apply_migration` (nunca `execute_sql` para DDL, nunca Supabase CLI — patrón SPEC 07–11). Auditoría remoto vs local, espejos faltantes, auto-aplica salvo SQL destructivo (pregunta), verifica con `list_migrations`/`get_advisors` y emite un reporte. No hace commits. Se invoca con `/db-migrator <spec>`.
+- **accessibility-checker** (`.opencode/agents/accessibility-checker.md`): agente que audita y corrige accesibilidad **WCAG 2.2 AA** en los archivos indicados (`/accessibility-checker app/page.tsx ...`). Diagnostica con una checklist de criterios (1.1.1, 1.4.3, 2.4.7, 4.1.2, etc. — estática sobre el código + verificación runtime con Playwright: foco, orden de tabulación, roles/estados, contraste computado, evidencia en `.playwright-mcp/`), corrige el código, valida con `npm run lint` + `npx tsc --noEmit` y emite un reporte citando el número de criterio en cada hallazgo. No hace commits.
 
 ## Reglas de código
 

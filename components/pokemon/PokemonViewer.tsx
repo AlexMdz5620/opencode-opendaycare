@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/shared/icons";
 
@@ -62,30 +62,34 @@ export function PokemonViewer() {
   const [pokemon, setPokemon] = useState<Pokemon | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const fetchPokemon = useCallback(async (id: number, signal: AbortSignal) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`, {
-        signal,
-      });
-      if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
-      const data: Pokemon = await res.json();
-      setPokemon(data);
-    } catch (err) {
-      if (err instanceof DOMException && err.name === "AbortError") return;
-      setError("No se pudo cargar el Pokémon. Intenta de nuevo.");
-    } finally {
-      if (!signal.aborted) setIsLoading(false);
-    }
-  }, []);
+  const [fetchToken, setFetchToken] = useState(0);
 
   useEffect(() => {
     const controller = new AbortController();
-    fetchPokemon(pokemonId, controller.signal);
+
+    async function fetchPokemon() {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(
+          `https://pokeapi.co/api/v2/pokemon/${pokemonId}`,
+          { signal: controller.signal },
+        );
+        if (!res.ok)
+          throw new Error(`Request failed with status ${res.status}`);
+        const data: Pokemon = await res.json();
+        setPokemon(data);
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        setError("No se pudo cargar el Pokémon. Intenta de nuevo.");
+      } finally {
+        if (!controller.signal.aborted) setIsLoading(false);
+      }
+    }
+
+    void fetchPokemon();
     return () => controller.abort();
-  }, [pokemonId, fetchPokemon]);
+  }, [pokemonId, fetchToken]);
 
   const goTo = (id: number) => {
     const clamped = Math.min(LAST_POKEMON, Math.max(FIRST_POKEMON, id));
@@ -107,11 +111,14 @@ export function PokemonViewer() {
 
       <div className="rounded-[18px] border border-[#ECE0D0] bg-[#FFFDF9] p-6 shadow-[0_10px_30px_-18px_rgba(63,54,46,.35)]">
         <div className="mb-1 text-[12.5px] font-extrabold tracking-[.8px] text-accent">
-          POKÉMON #{String(pokemon?.id ?? pokemonId).padStart(4, "0")}
+          POKÉMON #{String(pokemonId).padStart(4, "0")}
         </div>
 
         {isLoading && (
-          <div className="flex min-h-[320px] items-center justify-center text-[15px] font-semibold text-[#94887B]">
+          <div
+            role="status"
+            className="flex min-h-[320px] items-center justify-center text-[15px] font-semibold text-[#94887B]"
+          >
             Cargando…
           </div>
         )}
@@ -121,9 +128,7 @@ export function PokemonViewer() {
             <p className="text-[15px] font-semibold text-[#94887B]">{error}</p>
             <button
               type="button"
-              onClick={() =>
-                fetchPokemon(pokemonId, new AbortController().signal)
-              }
+              onClick={() => setFetchToken((token) => token + 1)}
               className="cursor-pointer rounded-[14px] bg-[linear-gradient(180deg,#F4977E,#EE8164)] px-[18px] py-[11px] text-[14.5px] font-extrabold text-white"
             >
               Reintentar

@@ -1,6 +1,11 @@
 "use client";
 
-import { useEffect, useState, useActionState } from "react";
+import {
+  useEffect,
+  useState,
+  useActionState,
+  type FormEvent,
+} from "react";
 import { addChild, type AddKidState } from "@/app/kids/actions";
 import type { RoomOption } from "@/components/kids/KidsScreen";
 import { ChevronDownIcon } from "@/components/shared/icons";
@@ -21,7 +26,7 @@ const EMPTY_ERRORS: FormErrors = { name: false, birthDate: false, room: false };
 const initialState: AddKidState = {};
 
 const LABEL_CLASS =
-  "mb-2 text-[12px] font-extrabold tracking-[.7px] text-[#94887B]";
+  "mb-2 block text-[12px] font-extrabold tracking-[.7px] text-[#94887B]";
 
 function inputClass(hasError: boolean): string {
   return [
@@ -30,9 +35,12 @@ function inputClass(hasError: boolean): string {
   ].join(" ");
 }
 
-function ErrorMessage() {
+function ErrorMessage({ id }: { id: string }) {
   return (
-    <p className="mt-1.5 text-[12.5px] font-bold text-[#D9583C]">
+    <p
+      id={id}
+      className="mt-1.5 text-[12.5px] font-bold text-[#D9583C]"
+    >
       Este campo es obligatorio
     </p>
   );
@@ -62,7 +70,7 @@ export function AddKidModal({ onClose, rooms }: AddKidModalProps) {
     if (state.success) onClose();
   }, [state.success, onClose]);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     const next: FormErrors = {
       name: !name.trim(),
       birthDate: !birthDate,
@@ -115,38 +123,58 @@ export function AddKidModal({ onClose, rooms }: AddKidModalProps) {
           )}
 
           <div className="mb-[18px]">
-            <div className={LABEL_CLASS}>NOMBRE COMPLETO</div>
+            <label htmlFor="kid-name" className={LABEL_CLASS}>
+              NOMBRE COMPLETO
+            </label>
             <input
               type="text"
+              id="kid-name"
               name="name"
               value={name}
               onChange={(event) => setName(event.target.value)}
               placeholder="Ej. Martina López"
               className={inputClass(errors.name)}
+              aria-invalid={errors.name}
+              aria-describedby={errors.name ? "kid-name-error" : undefined}
+              autoFocus
             />
-            {errors.name && <ErrorMessage />}
+            {errors.name && <ErrorMessage id="kid-name-error" />}
           </div>
 
           <div className="mb-[18px] flex gap-[14px]">
             <div className="min-w-0 flex-1">
-              <div className={LABEL_CLASS}>FECHA DE NACIMIENTO</div>
+              <label htmlFor="kid-birth-date" className={LABEL_CLASS}>
+                FECHA DE NACIMIENTO
+              </label>
               <input
                 type="date"
+                id="kid-birth-date"
                 name="birth_date"
                 value={birthDate}
                 onChange={(event) => setBirthDate(event.target.value)}
                 className={inputClass(errors.birthDate)}
+                aria-invalid={errors.birthDate}
+                aria-describedby={
+                  errors.birthDate ? "kid-birth-date-error" : undefined
+                }
               />
-              {errors.birthDate && <ErrorMessage />}
+              {errors.birthDate && <ErrorMessage id="kid-birth-date-error" />}
             </div>
             <div className="min-w-0 flex-1">
-              <div className={LABEL_CLASS}>SALA</div>
+              <label htmlFor="kid-room" className={LABEL_CLASS}>
+                SALA
+              </label>
               <div className="relative">
                 <select
+                  id="kid-room"
                   name="room_id"
                   value={roomId}
                   onChange={(event) => setRoomId(event.target.value)}
                   className={`${inputClass(errors.room)} appearance-none pr-10 font-bold`}
+                  aria-invalid={errors.room}
+                  aria-describedby={
+                    errors.room ? "kid-room-error" : undefined
+                  }
                 >
                   {rooms.map((option) => (
                     <option key={option.id} value={option.id}>
@@ -159,14 +187,17 @@ export function AddKidModal({ onClose, rooms }: AddKidModalProps) {
                   className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#B0A290]"
                 />
               </div>
-              {errors.room && <ErrorMessage />}
+              {errors.room && <ErrorMessage id="kid-room-error" />}
             </div>
           </div>
 
           <div className="mb-[18px]">
-            <div className={LABEL_CLASS}>ALERGIAS (ETIQUETAS)</div>
+            <label htmlFor="kid-allergies" className={LABEL_CLASS}>
+              ALERGIAS (ETIQUETAS)
+            </label>
             <input
               type="text"
+              id="kid-allergies"
               name="allergies"
               value={allergies}
               onChange={(event) => setAllergies(event.target.value)}
@@ -176,8 +207,11 @@ export function AddKidModal({ onClose, rooms }: AddKidModalProps) {
           </div>
 
           <div>
-            <div className={LABEL_CLASS}>NOTAS MÉDICAS</div>
+            <label htmlFor="kid-notes" className={LABEL_CLASS}>
+              NOTAS MÉDICAS
+            </label>
             <textarea
+              id="kid-notes"
               name="notes"
               value={notes}
               onChange={(event) => setNotes(event.target.value)}
