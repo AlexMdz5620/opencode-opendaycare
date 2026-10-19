@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { NAV_ITEMS } from "@/app/_data/mock";
+import { NAV_ITEMS, SIDEBAR_USER } from "@/app/_data/mock";
 import type { NavIcon } from "@/app/_data/mock";
 import {
   BellIcon,
@@ -34,7 +34,11 @@ export function SidebarContent() {
   const pathname = usePathname();
   const router = useRouter();
   const { openCreate } = useFeed();
-  const sidebarUser = useSessionUser();
+  const sidebarUser = useSessionUser() ?? {
+    name: SIDEBAR_USER.name,
+    initial: SIDEBAR_USER.initial,
+    roleLabel: SIDEBAR_USER.role,
+  };
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -90,14 +94,14 @@ export function SidebarContent() {
       <div className="mt-[10px] border-t border-[#ECE0D0] pt-[14px]">
         <div className="flex items-center gap-[11px] px-2 py-1.5">
           <span className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-full bg-accent-soft font-display text-[16px] font-semibold text-white">
-            {sidebarUser?.initial ?? ""}
+            {sidebarUser.initial}
           </span>
           <span className="min-w-0 flex-1">
             <span className="block text-[14px] font-extrabold text-[#3F362E]">
-              {sidebarUser?.name ?? ""}
+              {sidebarUser.name}
             </span>
             <span className="block text-[12px] text-[#A89A8B]">
-              {sidebarUser?.roleLabel ?? ""}
+              {sidebarUser.roleLabel}
             </span>
           </span>
           <button
