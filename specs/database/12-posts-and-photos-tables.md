@@ -1,6 +1,6 @@
 # SPEC 12 — Tablas `posts`, `post_children` y `post_photos` con RLS por audiencia, bucket `post-photos` y fix del vínculo `users` ↔ `auth.users`
 
-> **Estado:** Draft
+> **Estado:** Approved
 > **Depende de:** SPEC 07, SPEC 08, SPEC 09, SPEC 11
 > **Fecha:** 2026-10-20
 > **Objetivo:** Crear el enum `post_type` y las tablas `posts`, `post_children` y `post_photos` con RLS que restringe el INSERT a staff/admin y el SELECT a la audiencia (staff de la daycare + padres de los niños/sala), crear el bucket público `post-photos` con policies de upload solo staff, y corregir el vínculo `users.id` ↔ `auth.users.id` para que `auth.uid()` sea la identidad única.
@@ -9,7 +9,7 @@
 
 **In:**
 
-- Migración vía MCP `apply_migration` (name: `fix_users_auth_link`): para cada fila de `public.users` cuyo `email` matchea un `auth.users`, actualiza `users.id = auth.users.id`. Las FKs `invitations.invited_by_fkey` y `parent_children_parent_id_fkey` se eliminan y recrean en la misma transacción (`parent_children` preserva `ON DELETE CASCADE`). Tras la migración, **todo** `users.id` iguala su `auth.users.id` (incluye el staff sembrado de SPEC 08; los usuarios creados por `accept_invitation` en SPEC 11 ya cumplían `id = auth.uid()`).
+- Migración vía MCP `apply_migration` (name: `fix_users_auth_link`): para cada fila de `public.users` cuyo `email` matchea un `auth.users`, remapea en tabla temporal `_id_remap` (`old_id` → `new_id`) las referencias de `invitations.invited_by` y `parent_children.parent_id` **y después** actualiza `users.id = auth.users.id`. Las FKs `invitations.invited_by_fkey` y `parent_children_parent_id_fkey` se eliminan y recrean en la misma transacción (`parent_children` preserva `ON DELETE CASCADE`). Tras la migración, **todo** `users.id` iguala su `auth.users.id` (incluye el staff sembrado de SPEC 08; los usuarios creados por `accept_invitation` en SPEC 11 ya cumplían `id = auth.uid()`).
 - Migración (name: `create_posts_tables`): enum `post_type` (`meal`, `nap`, `activity`, `achievement`, `mood`, `photo`, `announcement` — **7 valores**, incluye `mood` que la referencia `@db-schema` no tiene pero la UI de SPEC 06 sí usa) + tablas `posts`, `post_children`, `post_photos` + índices + RLS + policies.
 - Tabla `public.posts`: `id uuid PK default gen_random_uuid()`, `author_id uuid not null references users(id)`, `daycare_id uuid not null references daycares(id) on delete cascade` (**columna agregada sobre la referencia `@db-schema`**, ver Decisions), `room_id uuid nullable references rooms(id)`, `type post_type not null`, `title text nullable`, `body text not null`, `published_at timestamptz not null default now()`, `created_at`/`updated_at` `timestamptz not null default now()`.
 - Tabla `public.post_children`: `post_id uuid not null references posts(id) on delete cascade`, `child_id uuid not null references children(id) on delete cascade`, `created_at timestamptz not null default now()`, PK compuesta `(post_id, child_id)`.
@@ -39,10 +39,26 @@ begin;
   alter table public.invitations drop constraint invitations_invited_by_fkey;
   alter table public.parent_children drop constraint parent_children_parent_id_fkey;
 
+  create temp table _id_remap on commit drop as
+    select u.id as old_id, au.id as new_id
+    from public.users u
+    join auth.users au on au.email = u.email
+    where u.id <> au.id;
+
+  update public.invitations i
+  set invited_by = r.new_id
+  from _id_remap r
+  where i.invited_by = r.old_id;
+
+  update public.parent_children pc
+  set parent_id = r.new_id
+  from _id_remap r
+  where pc.parent_id = r.old_id;
+
   update public.users u
-  set id = au.id
-  from auth.users au
-  where au.email = u.email and u.id <> au.id;
+  set id = r.new_id
+  from _id_remap r
+  where u.id = r.old_id;
 
   alter table public.invitations
     add constraint invitations_invited_by_fkey
@@ -248,14 +264,14 @@ Convención de audiencia (contrato para SPEC 13): un post es **de sala** (`room_
 
 ## Risks
 
-| Riesgo | Mitigation |
-| --- | --- |
-| Drop+re-add de FKs deja la BD sin constraints si la transacción falla a medias | Todo dentro de un `begin/commit` único; verificación post-migración de existencia de ambas FKs (criterio explícito). |
-| `update users.id` rompe referencias no contempladas | Solo existen 2 FKs hacia `users` (`invitations.invited_by`, `parent_children.parent_id`); verificación de counts antes/después. |
-| Policies de `posts` consultan `post_children` con RLS del usuario | `post_children` SELECT es `using (true)` para `authenticated` por diseño; documentado en Decisions. |
-| Policy de INSERT en `storage.objects` depende de `users` (necesita SELECT) | `users` ya tiene policy SELECT `to authenticated` desde SPEC 11; verificado con upload real en SPEC 13. |
-| Un `users` sin fila en `auth.users` (email no matchea) quedaría con id sin linkear | No existe tal caso en los seeds (SPEC 08/09 crearon los auth users); la verificación cuenta filas sin match. |
-| ` daycare_id` denormalizado en `posts` puede desincronizarse del autor | La action de SPEC 13 siempre lo toma de la fila del usuario en sesión; el policy de INSERT exige coherencia. |
+| Riesgo                                                                             | Mitigation                                                                                                                      |
+| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Drop+re-add de FKs deja la BD sin constraints si la transacción falla a medias     | Todo dentro de un `begin/commit` único; verificación post-migración de existencia de ambas FKs (criterio explícito).            |
+| `update users.id` rompe referencias no contempladas                                | Solo existen 2 FKs hacia `users` (`invitations.invited_by`, `parent_children.parent_id`); verificación de counts antes/después. |
+| Policies de `posts` consultan `post_children` con RLS del usuario                  | `post_children` SELECT es `using (true)` para `authenticated` por diseño; documentado en Decisions.                             |
+| Policy de INSERT en `storage.objects` depende de `users` (necesita SELECT)         | `users` ya tiene policy SELECT `to authenticated` desde SPEC 11; verificado con upload real en SPEC 13.                         |
+| Un `users` sin fila en `auth.users` (email no matchea) quedaría con id sin linkear | No existe tal caso en los seeds (SPEC 08/09 crearon los auth users); la verificación cuenta filas sin match.                    |
+| ` daycare_id` denormalizado en `posts` puede desincronizarse del autor             | La action de SPEC 13 siempre lo toma de la fila del usuario en sesión; el policy de INSERT exige coherencia.                    |
 
 ## What is **not** in this spec
 
