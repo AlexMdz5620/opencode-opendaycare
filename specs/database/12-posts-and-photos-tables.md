@@ -1,6 +1,6 @@
 # SPEC 12 — Tablas `posts`, `post_children` y `post_photos` con RLS por audiencia, bucket `post-photos` y fix del vínculo `users` ↔ `auth.users`
 
-> **Estado:** Approved
+> **Estado:** Implemented
 > **Depende de:** SPEC 07, SPEC 08, SPEC 09, SPEC 11
 > **Fecha:** 2026-10-20
 > **Objetivo:** Crear el enum `post_type` y las tablas `posts`, `post_children` y `post_photos` con RLS que restringe el INSERT a staff/admin y el SELECT a la audiencia (staff de la daycare + padres de los niños/sala), crear el bucket público `post-photos` con policies de upload solo staff, y corregir el vínculo `users.id` ↔ `auth.users.id` para que `auth.uid()` sea la identidad única.

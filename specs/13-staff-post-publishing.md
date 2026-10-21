@@ -1,6 +1,6 @@
 # SPEC 13 — Publicación de entradas por staff con fotos reales y feed desde BD
 
-> **Estado:** Draft
+> **Estado:** Approved
 > **Depende de:** SPEC 01, SPEC 06, SPEC 09, SPEC 10, SPEC 11, SPEC 12
 > **Fecha:** 2026-10-20
 > **Objetivo:** Que el staff y el admin publiquen entradas desde el modal existente (con título opcional y hasta 5 fotos reales subidas a Storage), que el post persista en `posts` con su audiencia materializada, y que el feed de `/` lea desde BD filtrando por RLS: el staff ve su daycare y el padre ve solo a sus hijos y los anuncios de sus salas.
@@ -163,14 +163,14 @@ Convención de path Storage: `post-photos/{daycare_id}/{post_id}/{posición}-{uu
 
 ## Risks
 
-| Riesgo | Mitigation |
-| --- | --- |
-| `auth.uid()` para el staff solo funciona tras el fix de SPEC 12 | SPEC 12 es dependencia dura; la action resuelve `users` por `auth.uid()` y falla con mensaje claro si no hay fila. |
+| Riesgo                                                                                          | Mitigation                                                                                                                                                                                                                                                                                              |
+| ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `auth.uid()` para el staff solo funciona tras el fix de SPEC 12                                 | SPEC 12 es dependencia dura; la action resuelve `users` por `auth.uid()` y falla con mensaje claro si no hay fila.                                                                                                                                                                                      |
 | Un padre podría insertar `post_children` apuntando a hijos ajenos (RLS de INSERT solo pide rol) | La action solo acepta kids del daycare del usuario y el policy de `posts` exige `author_id = auth.uid()` con rol staff; el SELECT del feed del padre sigue filtrado por `parent_children`. Riesgo residual registrado: endurecer `post_children` con subquery de daycare va en la spec de multi-tenant. |
-| Materializar `post_children` con muchos niños alarga la action | Salas pequeñas (≤ decenas); si crece, migrar a RPC en spec futura. |
-| `revalidatePath("/")` solo refresca la ruta actual | El feed es la raíz; al navegar a `/kids` y volver, el server component reconsulta igual. |
-| Upload de 5 archivos pesados satura el límite de body de la action | Validación de 5 MB por archivo antes de subir; límite total asumible (~25 MB). |
-| Hidratación con fotos/autor del server vs estado previo del contexto | El contexto ya no guarda posts; el estado inicial del feed viene 100 % de props del server. |
+| Materializar `post_children` con muchos niños alarga la action                                  | Salas pequeñas (≤ decenas); si crece, migrar a RPC en spec futura.                                                                                                                                                                                                                                      |
+| `revalidatePath("/")` solo refresca la ruta actual                                              | El feed es la raíz; al navegar a `/kids` y volver, el server component reconsulta igual.                                                                                                                                                                                                                |
+| Upload de 5 archivos pesados satura el límite de body de la action                              | Validación de 5 MB por archivo antes de subir; límite total asumible (~25 MB).                                                                                                                                                                                                                          |
+| Hidratación con fotos/autor del server vs estado previo del contexto                            | El contexto ya no guarda posts; el estado inicial del feed viene 100 % de props del server.                                                                                                                                                                                                             |
 
 ## What is **not** in this spec
 
