@@ -38,6 +38,8 @@ export interface FeedPost {
   avatarIcon?: "megaphone"; // presente en el post anuncio
   time: string; // "14:20"
   publishedByMe: boolean; // → "publicado por vos"
+  authorId?: string; // para publishedByMe en el server
+  title?: string;
   type: PostType;
   audience: string; // "familia de Mateo" | "toda la sala"
   text: string;

@@ -1,0 +1,16 @@
+
+> open-daycare@0.1.0 dev
+> next dev
+
+▲ Next.js 16.3.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://26.37.141.188:3000
+- Environments: .env
+✓ Ready in 1038ms
+✓ Running next.config.ts took 189ms
+
+ GET /login 200 in 516ms (next.js: 235ms, proxy.ts: 11ms, application-code: 270ms)
+ GET / 200 in 1118ms (next.js: 91ms, proxy.ts: 221ms, application-code: 807ms)
+ POST /login 200 in 2.3s (next.js: 10ms, proxy.ts: 15ms, application-code: 2.3s)
+  └─ ƒ login({}, {}) in 1078ms app/login/actions.ts
+ GET / 200 in 594ms (next.js: 9ms, proxy.ts: 20ms, application-code: 566ms)
