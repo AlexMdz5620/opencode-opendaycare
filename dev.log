@@ -23,3 +23,16 @@
 ✓ Compiled in 228ms
  GET / 200 in 72ms (next.js: 18ms, proxy.ts: 12ms, application-code: 42ms)
  GET / 200 in 1320ms (next.js: 97ms, proxy.ts: 33ms, application-code: 1190ms)
+✓ Compiled in 263ms
+✓ Compiled in 135ms
+ GET / 200 in 829ms (next.js: 50ms, proxy.ts: 695ms, application-code: 84ms)
+ GET / 200 in 81ms (next.js: 11ms, proxy.ts: 15ms, application-code: 55ms)
+✓ Compiled in 158ms
+ GET / 200 in 72ms (next.js: 18ms, proxy.ts: 12ms, application-code: 41ms)
+ GET / 200 in 925ms (next.js: 134ms, proxy.ts: 8ms, application-code: 783ms)
+ GET /login 200 in 81ms (next.js: 39ms, proxy.ts: 20ms, application-code: 22ms)
+ POST /login 200 in 339ms (next.js: 8ms, proxy.ts: 11ms, application-code: 321ms)
+  └─ ƒ login({}, {}) in 305ms app/login/actions.ts
+ GET / 200 in 872ms (next.js: 5ms, proxy.ts: 9ms, application-code: 859ms)
+ POST /login 200 in 1545ms (next.js: 8ms, proxy.ts: 18ms, application-code: 1519ms)
+  └─ ƒ login({"error":"Email o contraseña incorrectos"}, {}) in 613ms app/login/actions.ts

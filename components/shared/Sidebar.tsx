@@ -38,7 +38,10 @@ export function SidebarContent() {
     name: SIDEBAR_USER.name,
     initial: SIDEBAR_USER.initial,
     roleLabel: SIDEBAR_USER.role,
+    role: "",
   };
+  const canPublish =
+    sidebarUser.role === "staff" || sidebarUser.role === "admin";
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -65,14 +68,16 @@ export function SidebarContent() {
         </span>
       </Link>
 
-      <button
-        type="button"
-        onClick={openCreate}
-        className="mb-[18px] flex w-full cursor-pointer items-center justify-center gap-2 rounded-[14px] bg-[linear-gradient(180deg,#F4977E,#EE8164)] px-3 py-3 text-[14.5px] font-extrabold text-white shadow-[0_8px_18px_-8px_rgba(238,129,100,.75)]"
-      >
-        <PlusIcon size={17} />
-        Nueva publicación
-      </button>
+      {canPublish && (
+        <button
+          type="button"
+          onClick={openCreate}
+          className="mb-[18px] flex w-full cursor-pointer items-center justify-center gap-2 rounded-[14px] bg-[linear-gradient(180deg,#F4977E,#EE8164)] px-3 py-3 text-[14.5px] font-extrabold text-white shadow-[0_8px_18px_-8px_rgba(238,129,100,.75)]"
+        >
+          <PlusIcon size={17} />
+          Nueva publicación
+        </button>
+      )}
 
       <nav className="flex flex-1 flex-col gap-1">
         {NAV_ITEMS.map((item) => {
