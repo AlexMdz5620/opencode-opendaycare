@@ -51,6 +51,12 @@ export function PostCard({ post }: { post: FeedPost }) {
         Para: {post.audience}
       </div>
 
+      {post.title && (
+        <p className="m-0 mb-1 text-[15.5px] font-extrabold leading-[1.55] text-[#4A4038]">
+          {post.title}
+        </p>
+      )}
+
       <p className="m-0 text-[15.5px] leading-[1.55] text-[#4A4038]">
         {post.text}
       </p>

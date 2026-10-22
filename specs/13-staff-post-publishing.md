@@ -1,6 +1,6 @@
 # SPEC 13 — Publicación de entradas por staff con fotos reales y feed desde BD
 
-> **Estado:** Approved
+> **Estado:** Implemented
 > **Depende de:** SPEC 01, SPEC 06, SPEC 09, SPEC 10, SPEC 11, SPEC 12
 > **Fecha:** 2026-10-20
 > **Objetivo:** Que el staff y el admin publiquen entradas desde el modal existente (con título opcional y hasta 5 fotos reales subidas a Storage), que el post persista en `posts` con su audiencia materializada, y que el feed de `/` lea desde BD filtrando por RLS: el staff ve su daycare y el padre ve solo a sus hijos y los anuncios de sus salas.

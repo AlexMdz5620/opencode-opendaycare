@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  startTransition,
   useActionState,
   useEffect,
   useRef,
@@ -253,7 +254,9 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
     for (const photo of photos) {
       formData.append("photos", photo.file);
     }
-    formAction(formData);
+    startTransition(() => {
+      formAction(formData);
+    });
   }
 
   function pillClass(selected: boolean): string {

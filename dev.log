@@ -11186,3 +11186,26 @@ Import trace:
  GET / 200 in 58ms (next.js: 17ms, proxy.ts: 9ms, application-code: 32ms)
 ✓ Compiled in 209ms
  GET / 200 in 81ms (next.js: 20ms, proxy.ts: 21ms, application-code: 40ms)
+✓ Compiled in 104ms
+ GET / 200 in 69ms (next.js: 17ms, proxy.ts: 13ms, application-code: 40ms)
+ GET /login 200 in 253ms (next.js: 84ms, proxy.ts: 10ms, application-code: 159ms)
+ GET / 200 in 1186ms (next.js: 64ms, proxy.ts: 12ms, application-code: 1110ms)
+ GET /kids 200 in 743ms (next.js: 114ms, proxy.ts: 14ms, application-code: 615ms)
+ GET / 200 in 898ms (next.js: 11ms, proxy.ts: 256ms, application-code: 631ms)
+[browser] An async function with useActionState was called outside of a transition. This is likely not what you intended (for example, isPending will not update correctly). Either call the returned function inside startTransition, or pass it to an `action` or `formAction` prop. 
+    at handleSubmit (components/home/CreatePostModal.tsx:256:5)
+  254 |       formData.append("photos", photo.file);
+  255 |     }
+> 256 |     formAction(formData);
+      |     ^
+  257 |   }
+  258 |
+  259 |   function pillClass(selected: boolean): string { (components/home/CreatePostModal.tsx:256:5)
+ POST / 200 in 2.9s (next.js: 40ms, proxy.ts: 22ms, application-code: 2.9s)
+  └─ ƒ createPost({}, {}) in 2499ms app/actions.ts
+✓ Compiled in 164ms
+ GET / 200 in 70ms (next.js: 16ms, proxy.ts: 8ms, application-code: 47ms)
+ GET / 200 in 64ms (next.js: 18ms, proxy.ts: 8ms, application-code: 37ms)
+ GET / 200 in 1178ms (next.js: 187ms, proxy.ts: 17ms, application-code: 975ms)
+ POST / 200 in 1951ms (next.js: 7ms, proxy.ts: 21ms, application-code: 1922ms)
+  └─ ƒ createPost({}, {}) in 1476ms app/actions.ts
