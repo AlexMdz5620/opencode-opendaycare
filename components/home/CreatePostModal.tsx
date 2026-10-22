@@ -2,10 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { POST_TYPE_ORDER, type PostType } from "@/app/_data/mock";
-import { KIDS, type Kid } from "@/app/_data/kids";
-import { loadLocalKids } from "@/app/_data/localKids";
 import { useFeed } from "@/components/home/FeedContext";
 import { CloseIcon, PlusIcon } from "@/components/shared/icons";
+import { createClient } from "@/utils/supabase/client";
 
 const SECTION_LABEL_CLASS =
   "mb-[10px] text-[12px] font-extrabold tracking-[.7px] text-[#94887B]";
@@ -30,10 +29,30 @@ const TYPE_PILL_COLOR: Record<PostType, { bg: string; fg: string }> = {
   announcement: { bg: "#CCD8F4", fg: "#4E72C8" },
 };
 
+const AVATAR_PALETTE: ReadonlyArray<readonly [string, string]> = [
+  ["#A9D9E8", "#1F7A93"],
+  ["#F4B8CC", "#C44A7A"],
+  ["#B9DEC4", "#3E8B62"],
+  ["#C9B6E8", "#7B5FC0"],
+  ["#F4DC8E", "#9A7B1E"],
+];
+
 interface CreatePostErrors {
   audience?: boolean;
   type?: boolean;
   description?: boolean;
+}
+
+interface RoomOption {
+  id: string;
+  name: string;
+}
+
+interface ChildOption {
+  id: string;
+  full_name: string;
+  room_id: string | null;
+  photo_consent: boolean;
 }
 
 function textareaClass(hasError: boolean): string {
@@ -61,17 +80,32 @@ export function CreatePostModal() {
 
 function CreatePostDialog({ onClose }: { onClose: () => void }) {
   const [selectedKidIds, setSelectedKidIds] = useState<string[]>([]);
-  const [allRoom, setAllRoom] = useState(false);
+  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [type, setType] = useState<PostType | null>(null);
   const [description, setDescription] = useState("");
   const [errors, setErrors] = useState<CreatePostErrors>({});
   const [photos, setPhotos] = useState<string[]>([]);
-  const [localKids, setLocalKids] = useState<Kid[]>([]);
+  const [rooms, setRooms] = useState<RoomOption[]>([]);
+  const [kids, setKids] = useState<ChildOption[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLocalKids(loadLocalKids());
+    const supabase = createClient();
+    supabase
+      .from("rooms")
+      .select("id, name")
+      .order("created_at", { ascending: true })
+      .then(({ data }) => {
+        setRooms((data ?? []) as RoomOption[]);
+      });
+    supabase
+      .from("children")
+      .select("id, full_name, room_id, photo_consent")
+      .eq("status", "active")
+      .order("full_name", { ascending: true })
+      .then(({ data }) => {
+        setKids((data ?? []) as ChildOption[]);
+      });
   }, []);
 
   function dismiss() {
@@ -102,20 +136,18 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
     setPhotos((prev) => prev.filter((photo) => photo !== url));
   }
 
-  const kids = [...KIDS, ...localKids];
-
-  function toggleAllRoom() {
-    if (allRoom) {
-      setAllRoom(false);
+  function toggleRoom(roomId: string) {
+    if (selectedRoomId === roomId) {
+      setSelectedRoomId(null);
       return;
     }
-    setAllRoom(true);
+    setSelectedRoomId(roomId);
     setSelectedKidIds([]);
   }
 
   function toggleKid(kidId: string) {
-    if (allRoom) {
-      setAllRoom(false);
+    if (selectedRoomId) {
+      setSelectedRoomId(null);
       setSelectedKidIds([kidId]);
       return;
     }
@@ -128,7 +160,7 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
 
   function handlePublish() {
     const next: CreatePostErrors = {
-      audience: !allRoom && selectedKidIds.length === 0,
+      audience: !selectedRoomId && selectedKidIds.length === 0,
       type: !type,
       description: !description.trim(),
     };
@@ -185,9 +217,25 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
           <div className="mb-[22px]">
             <div className={SECTION_LABEL_CLASS}>PARA</div>
             <div className="flex flex-wrap gap-[9px]">
-              {kids.map((kid) => {
-                const selected = !allRoom && selectedKidIds.includes(kid.id);
-                const firstName = kid.name.split(" ")[0];
+              {rooms.map((room) => {
+                const selected = selectedRoomId === room.id;
+                return (
+                  <button
+                    key={room.id}
+                    type="button"
+                    onClick={() => toggleRoom(room.id)}
+                    className={`${pillClass(selected)} px-4 py-[6px]`}
+                  >
+                    Toda la sala · {room.name}
+                  </button>
+                );
+              })}
+              {kids.map((kid, index) => {
+                const selected =
+                  !selectedRoomId && selectedKidIds.includes(kid.id);
+                const [avatarBg, avatarColor] =
+                  AVATAR_PALETTE[index % AVATAR_PALETTE.length];
+                const firstName = kid.full_name.split(" ")[0];
                 return (
                   <button
                     key={kid.id}
@@ -198,23 +246,16 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
                     <span
                       className="flex h-[26px] w-[26px] flex-none items-center justify-center rounded-full font-display text-[13px] font-semibold"
                       style={{
-                        backgroundColor: kid.avatarBg,
-                        color: kid.avatarColor,
+                        backgroundColor: avatarBg,
+                        color: avatarColor,
                       }}
                     >
-                      {kid.initial}
+                      {kid.full_name.trim().charAt(0).toUpperCase()}
                     </span>
                     {firstName}
                   </button>
                 );
               })}
-              <button
-                type="button"
-                onClick={toggleAllRoom}
-                className={`${pillClass(allRoom)} px-4 py-[6px]`}
-              >
-                Toda la sala
-              </button>
             </div>
             {errors.audience && <ErrorMessage />}
           </div>
