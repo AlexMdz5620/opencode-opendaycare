@@ -7,6 +7,7 @@ export interface SessionUser {
   name: string;
   initial: string;
   roleLabel: string;
+  role: string;
 }
 
 export function useSessionUser(): SessionUser | null {
@@ -57,6 +58,7 @@ export function useSessionUser(): SessionUser | null {
         name,
         initial: name.charAt(0).toUpperCase(),
         roleLabel,
+        role: dbRole,
       });
     });
   }, []);
