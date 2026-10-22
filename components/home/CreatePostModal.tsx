@@ -60,7 +60,6 @@ export function CreatePostModal() {
 }
 
 function CreatePostDialog({ onClose }: { onClose: () => void }) {
-  const { addPost } = useFeed();
   const [selectedKidIds, setSelectedKidIds] = useState<string[]>([]);
   const [allRoom, setAllRoom] = useState(false);
   const [type, setType] = useState<PostType | null>(null);
@@ -137,34 +136,6 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
     if (next.audience || next.type || next.description || type === null) {
       return;
     }
-
-    const audience = allRoom
-      ? "toda la sala"
-      : `familia de ${selectedKidIds
-          .map((id) => kids.find((kid) => kid.id === id)?.name.split(" ")[0])
-          .filter((name) => name)
-          .join(", ")}`;
-
-    const now = new Date();
-    const time = `${String(now.getHours()).padStart(2, "0")}:${String(
-      now.getMinutes(),
-    ).padStart(2, "0")}`;
-
-    addPost({
-      id: `p-${Date.now().toString(36)}`,
-      authorName: "Caro Giménez",
-      authorInitial: "C",
-      avatarBg: "#F2937A",
-      avatarColor: "#FFFFFF",
-      time,
-      publishedByMe: true,
-      type,
-      audience,
-      text: description,
-      photos: photos.length ? photos : undefined,
-      hearts: 0,
-      comments: 0,
-    });
     onClose();
   }
 

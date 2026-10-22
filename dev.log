@@ -14,3 +14,12 @@
  POST /login 200 in 2.3s (next.js: 10ms, proxy.ts: 15ms, application-code: 2.3s)
   └─ ƒ login({}, {}) in 1078ms app/login/actions.ts
  GET / 200 in 594ms (next.js: 9ms, proxy.ts: 20ms, application-code: 566ms)
+⚠ Fast Refresh had to perform a full reload when ./components/home/FeedContext.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+✓ Compiled in 259ms
+ GET / 200 in 199ms (next.js: 26ms, proxy.ts: 21ms, application-code: 151ms)
+ GET / 200 in 1174ms (next.js: 12ms, proxy.ts: 102ms, application-code: 1060ms)
+✓ Compiled in 182ms
+ GET / 200 in 87ms (next.js: 20ms, proxy.ts: 12ms, application-code: 54ms)
+✓ Compiled in 228ms
+ GET / 200 in 72ms (next.js: 18ms, proxy.ts: 12ms, application-code: 42ms)
+ GET / 200 in 1320ms (next.js: 97ms, proxy.ts: 33ms, application-code: 1190ms)
