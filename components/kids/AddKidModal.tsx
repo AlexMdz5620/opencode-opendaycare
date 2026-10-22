@@ -6,7 +6,7 @@ import {
   useActionState,
   type FormEvent,
 } from "react";
-import { addChild, type AddKidState } from "@/app/kids/actions";
+import { addChild, type AddKidState } from "@/app/staff/kids/actions";
 import type { RoomOption } from "@/components/kids/KidsScreen";
 import { ChevronDownIcon } from "@/components/shared/icons";
 

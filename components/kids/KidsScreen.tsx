@@ -6,8 +6,6 @@ import { AddKidModal } from "@/components/kids/AddKidModal";
 import { KidsHeader } from "@/components/kids/KidsHeader";
 import { KidsRoomSection } from "@/components/kids/KidsRoomSection";
 import { KidsSearch } from "@/components/kids/KidsSearch";
-import { MobileNav } from "@/components/shared/MobileNav";
-import { Sidebar } from "@/components/shared/Sidebar";
 
 export interface RoomOption {
   id: string;
@@ -24,36 +22,30 @@ export function KidsScreen({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
-      <MobileNav />
-      <main className="h-screen min-w-0 flex-1 overflow-y-auto">
-        <div className="mx-auto w-full max-w-[880px] px-10 pb-20 pt-[34px]">
-          <KidsHeader onAdd={() => setIsModalOpen(true)} />
-          <KidsSearch />
-          {kids.length === 0 ? (
-            <p className="py-12 text-center text-[15px] font-semibold text-[#94887B]">
-              Aún no hay niños registrados
-            </p>
-          ) : (
-            <div className="flex flex-col gap-[22px]">
-              {rooms.map((room) => {
-                const roomKids = kids.filter(
-                  (kid) => kid.room === room.name,
-                );
-                if (roomKids.length === 0) return null;
-                return (
-                  <KidsRoomSection
-                    key={room.id}
-                    room={room.name}
-                    kids={roomKids}
-                  />
-                );
-              })}
-            </div>
-          )}
+    <div className="mx-auto w-full max-w-[880px] px-10 pb-20 pt-[34px]">
+      <KidsHeader onAdd={() => setIsModalOpen(true)} />
+      <KidsSearch />
+      {kids.length === 0 ? (
+        <p className="py-12 text-center text-[15px] font-semibold text-[#94887B]">
+          Aún no hay niños registrados
+        </p>
+      ) : (
+        <div className="flex flex-col gap-[22px]">
+          {rooms.map((room) => {
+            const roomKids = kids.filter(
+              (kid) => kid.room === room.name,
+            );
+            if (roomKids.length === 0) return null;
+            return (
+              <KidsRoomSection
+                key={room.id}
+                room={room.name}
+                kids={roomKids}
+              />
+            );
+          })}
         </div>
-      </main>
+      )}
       {isModalOpen && (
         <AddKidModal
           rooms={rooms}

@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { MenuIcon } from "@/components/shared/icons";
-import { SidebarContent } from "@/components/shared/Sidebar";
+import { SidebarContent, type SidebarConfig } from "@/components/shared/Sidebar";
 
-export function MobileNav() {
+export function MobileNav({ config }: { config: SidebarConfig }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -26,7 +26,7 @@ export function MobileNav() {
             className="fixed inset-0 z-40 bg-black/40 md:hidden"
           />
           <aside className="fixed inset-y-0 left-0 z-50 flex w-[248px] flex-col border-r border-[#ECE0D0] bg-[#FFFDF9] p-6 px-4 md:hidden">
-            <SidebarContent />
+            <SidebarContent {...config} />
           </aside>
         </>
       )}

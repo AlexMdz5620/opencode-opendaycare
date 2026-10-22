@@ -221,6 +221,6 @@ export async function createPost(
     }
   }
 
-  revalidatePath("/");
+  revalidatePath("/staff");
   return { success: true };
 }

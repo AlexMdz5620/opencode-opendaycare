@@ -1,4 +1,4 @@
-import { toKid, type ChildRow } from "@/app/kids/derive";
+import { toKid, type ChildRow } from "@/app/staff/kids/derive";
 import { KidsScreen, type RoomOption } from "@/components/kids/KidsScreen";
 import { createClient } from "@/utils/supabase/server";
 
