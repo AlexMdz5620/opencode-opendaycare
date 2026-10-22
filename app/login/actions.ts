@@ -35,6 +35,22 @@ export async function login(
     return { error: "Email o contraseña incorrectos" };
   }
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { data: userRow } = user
+    ? await supabase
+        .from("users")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle()
+    : { data: null };
+
   revalidatePath("/", "layout");
-  redirect("/");
+  redirect(
+    userRow?.role === "staff" || userRow?.role === "admin"
+      ? "/staff"
+      : "/family",
+  );
 }

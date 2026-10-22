@@ -1,13 +1,11 @@
 import { notFound } from "next/navigation";
 import type { KidParent } from "@/app/_data/kids";
-import { toKid, type ChildRow } from "@/app/kids/derive";
+import { toKid, type ChildRow } from "@/app/staff/kids/derive";
 import { AllergyBanner } from "@/components/kid-profile/AllergyBanner";
 import { ProfileAside } from "@/components/kid-profile/ProfileAside";
 import { ProfileBackLink } from "@/components/kid-profile/ProfileBackLink";
 import { ProfileFacts } from "@/components/kid-profile/ProfileFacts";
 import { ProfileHero } from "@/components/kid-profile/ProfileHero";
-import { MobileNav } from "@/components/shared/MobileNav";
-import { Sidebar } from "@/components/shared/Sidebar";
 import { createClient } from "@/utils/supabase/server";
 
 const UUID_PATTERN =
@@ -93,22 +91,16 @@ export default async function KidProfilePage({
   kid.parents = parents;
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
-      <MobileNav />
-      <main className="h-screen min-w-0 flex-1 overflow-y-auto">
-        <div className="mx-auto w-full max-w-[820px] px-10 pb-20 pt-[34px]">
-          <ProfileBackLink />
-          <div className="flex flex-wrap items-start gap-[26px]">
-            <div className="flex min-w-[300px] flex-1 flex-col gap-[18px]">
-              <ProfileHero kid={kid} />
-              {kid.allergies && <AllergyBanner allergies={kid.allergies} />}
-              <ProfileFacts kid={kid} />
-            </div>
-            <ProfileAside kid={kid} />
-          </div>
+    <div className="mx-auto w-full max-w-[820px] px-10 pb-20 pt-[34px]">
+      <ProfileBackLink />
+      <div className="flex flex-wrap items-start gap-[26px]">
+        <div className="flex min-w-[300px] flex-1 flex-col gap-[18px]">
+          <ProfileHero kid={kid} />
+          {kid.allergies && <AllergyBanner allergies={kid.allergies} />}
+          <ProfileFacts kid={kid} />
         </div>
-      </main>
+        <ProfileAside kid={kid} />
+      </div>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useActionState } from "react";
-import { createInvitation, type CreateInvitationState } from "@/app/kids/actions";
+import { createInvitation, type CreateInvitationState } from "@/app/staff/kids/actions";
 import { CloseIcon, InfoIcon, SendIcon } from "@/components/shared/icons";
 
 interface LinkParentModalProps {

@@ -1,0 +1,34 @@
+schema: spec-driven
+
+# Project context (optional)
+# Add only constraints that should guide OpenSpec artifacts and workflows.
+# Include constraints an agent cannot infer by reading the code.
+# Keep general project documentation and discoverable codebase facts out.
+context: |
+  Open DayCare es una app de gestión para guarderías: el personal publica un
+  feed diario (fotos/actualizaciones) y gestiona niños y salas, mientras los
+  padres ven la actividad de sus hijos al recibir una invitación por email.
+  Todo artefacto debe preservar ese flujo: staff publica, padres solo leben
+  los datos de sus propios hijos (multi-tenant + RLS en Supabase).
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always state what is out of scope
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+# Example:
+#   operations:
+#     apply:
+#       guidance:
+#         - Keep test summaries concise
+#     archive:
+#       guidance:
+#         - Summarize the archive outcome before finishing

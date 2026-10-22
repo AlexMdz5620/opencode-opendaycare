@@ -54,7 +54,7 @@ export async function addChild(
     return { error: "No se pudo guardar el niño. Intentá de nuevo." };
   }
 
-  revalidatePath("/kids");
+  revalidatePath("/staff/kids");
   return { success: true };
 }
 

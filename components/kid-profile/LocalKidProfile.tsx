@@ -38,7 +38,7 @@ export function LocalKidProfile({ id }: LocalKidProfileProps) {
           Niño no encontrado
         </p>
         <Link
-          href="/kids"
+          href="/staff/kids"
           className="mt-3 inline-flex items-center gap-[7px] text-[14px] font-bold text-[#94887B]"
         >
           Volver a Niños

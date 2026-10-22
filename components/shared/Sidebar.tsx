@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { NAV_ITEMS, SIDEBAR_USER } from "@/app/_data/mock";
+import { SIDEBAR_USER } from "@/app/_data/mock";
 import type { NavIcon } from "@/app/_data/mock";
 import {
   BellIcon,
@@ -24,24 +24,85 @@ const NAV_ICONS = {
   user: UserIcon,
 } as const;
 
-function isActivePath(pathname: string, href: string): boolean {
+export interface NavItem {
+  label: string;
+  icon: NavIcon;
+  href: string;
+}
+
+export interface SidebarConfig {
+  navItems: NavItem[];
+  subtitle: string;
+  showCompose: boolean;
+  homeHref: string;
+}
+
+export const STAFF_NAV_ITEMS: NavItem[] = [
+  { label: "Feed", icon: "home", href: "/staff" },
+  { label: "Niños", icon: "kids", href: "/staff/kids" },
+  { label: "Avisos", icon: "bell", href: "#" },
+  { label: "Mi cuenta", icon: "user", href: "#" },
+];
+
+export const FAMILY_NAV_ITEMS: NavItem[] = [
+  { label: "Feed", icon: "home", href: "/family" },
+  { label: "Resumen del día", icon: "bell", href: "#" },
+  { label: "Mi cuenta", icon: "user", href: "#" },
+];
+
+export const STAFF_SIDEBAR_CONFIG: SidebarConfig = {
+  navItems: STAFF_NAV_ITEMS,
+  subtitle: "Sala Soles",
+  showCompose: true,
+  homeHref: "/staff",
+};
+
+export const FAMILY_SIDEBAR_CONFIG: SidebarConfig = {
+  navItems: FAMILY_NAV_ITEMS,
+  subtitle: "Familia",
+  showCompose: false,
+  homeHref: "/family",
+};
+
+function isActivePath(
+  pathname: string,
+  href: string,
+  homeHref: string,
+): boolean {
   if (href === "#") return false;
-  if (href === "/") return pathname === "/";
+  if (href === homeHref) return pathname === homeHref;
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function SidebarContent() {
+function ComposeButton() {
+  const { openCreate } = useFeed();
+
+  return (
+    <button
+      type="button"
+      onClick={openCreate}
+      className="mb-[18px] flex w-full cursor-pointer items-center justify-center gap-2 rounded-[14px] bg-[linear-gradient(180deg,#F4977E,#EE8164)] px-3 py-3 text-[14.5px] font-extrabold text-white shadow-[0_8px_18px_-8px_rgba(238,129,100,.75)]"
+    >
+      <PlusIcon size={17} />
+      Nueva publicación
+    </button>
+  );
+}
+
+export function SidebarContent({
+  navItems,
+  subtitle,
+  showCompose,
+  homeHref,
+}: SidebarConfig) {
   const pathname = usePathname();
   const router = useRouter();
-  const { openCreate } = useFeed();
   const sidebarUser = useSessionUser() ?? {
     name: SIDEBAR_USER.name,
     initial: SIDEBAR_USER.initial,
     roleLabel: SIDEBAR_USER.role,
     role: "",
   };
-  const canPublish =
-    sidebarUser.role === "staff" || sidebarUser.role === "admin";
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -52,7 +113,7 @@ export function SidebarContent() {
   return (
     <>
       <Link
-        href="/"
+        href={homeHref}
         className="flex items-center gap-[11px] px-2 pb-[22px] pt-1"
       >
         <span className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-[12px] [background:linear-gradient(155deg,#F8C3A8,#F2937A)]">
@@ -63,26 +124,17 @@ export function SidebarContent() {
             OpenDayCare
           </span>
           <span className="mt-0.5 block text-[11.5px] text-[#A89A8B]">
-            Sala Soles
+            {subtitle}
           </span>
         </span>
       </Link>
 
-      {canPublish && (
-        <button
-          type="button"
-          onClick={openCreate}
-          className="mb-[18px] flex w-full cursor-pointer items-center justify-center gap-2 rounded-[14px] bg-[linear-gradient(180deg,#F4977E,#EE8164)] px-3 py-3 text-[14.5px] font-extrabold text-white shadow-[0_8px_18px_-8px_rgba(238,129,100,.75)]"
-        >
-          <PlusIcon size={17} />
-          Nueva publicación
-        </button>
-      )}
+      {showCompose && <ComposeButton />}
 
       <nav className="flex flex-1 flex-col gap-1">
-        {NAV_ITEMS.map((item) => {
+        {navItems.map((item) => {
           const Icon = NAV_ICONS[item.icon as NavIcon];
-          const active = isActivePath(pathname, item.href);
+          const active = isActivePath(pathname, item.href, homeHref);
           const className = active
             ? "flex items-center gap-3 rounded-[12px] bg-[#FBE3D8] px-3 py-[11px] text-[14.5px] font-extrabold text-accent"
             : "flex items-center gap-3 rounded-[12px] px-3 py-[11px] text-[14.5px] font-semibold text-[#6E6359]";
@@ -123,10 +175,18 @@ export function SidebarContent() {
   );
 }
 
-export function Sidebar() {
+export function Sidebar({ config }: { config: SidebarConfig }) {
   return (
     <aside className="sticky top-0 hidden h-screen w-[248px] flex-none flex-col border-r border-[#ECE0D0] bg-[#FFFDF9] p-6 px-4 md:flex">
-      <SidebarContent />
+      <SidebarContent {...config} />
     </aside>
   );
+}
+
+export function StaffSidebar() {
+  return <Sidebar config={STAFF_SIDEBAR_CONFIG} />;
+}
+
+export function FamilySidebar() {
+  return <Sidebar config={FAMILY_SIDEBAR_CONFIG} />;
 }
