@@ -3,9 +3,15 @@
 import { SIDEBAR_USER } from "@/app/_data/mock";
 import { CameraIcon } from "@/components/shared/icons";
 import { useFeed } from "@/components/home/FeedContext";
+import { useSessionUser } from "@/components/shared/useSessionUser";
 
 export function Composer() {
   const { openCreate } = useFeed();
+  const sessionUser = useSessionUser();
+
+  if (sessionUser?.role !== "staff" && sessionUser?.role !== "admin") {
+    return null;
+  }
 
   return (
     <button

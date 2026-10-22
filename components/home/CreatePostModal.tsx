@@ -1,11 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import {
+  startTransition,
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
+import { createPost, type CreatePostState } from "@/app/actions";
 import { POST_TYPE_ORDER, type PostType } from "@/app/_data/mock";
-import { KIDS, type Kid } from "@/app/_data/kids";
-import { loadLocalKids } from "@/app/_data/localKids";
 import { useFeed } from "@/components/home/FeedContext";
 import { CloseIcon, PlusIcon } from "@/components/shared/icons";
+import { createClient } from "@/utils/supabase/client";
 
 const SECTION_LABEL_CLASS =
   "mb-[10px] text-[12px] font-extrabold tracking-[.7px] text-[#94887B]";
@@ -30,11 +37,47 @@ const TYPE_PILL_COLOR: Record<PostType, { bg: string; fg: string }> = {
   announcement: { bg: "#CCD8F4", fg: "#4E72C8" },
 };
 
+const AVATAR_PALETTE: ReadonlyArray<readonly [string, string]> = [
+  ["#A9D9E8", "#1F7A93"],
+  ["#F4B8CC", "#C44A7A"],
+  ["#B9DEC4", "#3E8B62"],
+  ["#C9B6E8", "#7B5FC0"],
+  ["#F4DC8E", "#9A7B1E"],
+];
+
+const MAX_PHOTOS = 5;
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+const PHOTO_SIZE_ERROR = "Cada foto debe pesar menos de 5 MB";
+const PHOTO_TYPE_ERROR = "Solo se pueden adjuntar imágenes";
+const PHOTO_COUNT_ERROR = "Máximo 5 fotos";
+const PHOTO_CONSENT_ERROR =
+  "Hay niños sin consentimiento de fotos en la audiencia. Quitá las fotos o publicalas sin ellas.";
+
 interface CreatePostErrors {
   audience?: boolean;
   type?: boolean;
   description?: boolean;
+  photos?: string;
 }
+
+interface RoomOption {
+  id: string;
+  name: string;
+}
+
+interface ChildOption {
+  id: string;
+  full_name: string;
+  room_id: string | null;
+  photo_consent: boolean;
+}
+
+interface PhotoEntry {
+  file: File;
+  previewUrl: string;
+}
+
+const initialState: CreatePostState = {};
 
 function textareaClass(hasError: boolean): string {
   return [
@@ -60,25 +103,51 @@ export function CreatePostModal() {
 }
 
 function CreatePostDialog({ onClose }: { onClose: () => void }) {
-  const { addPost } = useFeed();
   const [selectedKidIds, setSelectedKidIds] = useState<string[]>([]);
-  const [allRoom, setAllRoom] = useState(false);
+  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [type, setType] = useState<PostType | null>(null);
+  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [errors, setErrors] = useState<CreatePostErrors>({});
-  const [photos, setPhotos] = useState<string[]>([]);
-  const [localKids, setLocalKids] = useState<Kid[]>([]);
+  const [photos, setPhotos] = useState<PhotoEntry[]>([]);
+  const [rooms, setRooms] = useState<RoomOption[]>([]);
+  const [kids, setKids] = useState<ChildOption[]>([]);
+  const [state, formAction, pending] = useActionState(
+    createPost,
+    initialState,
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLocalKids(loadLocalKids());
+    const supabase = createClient();
+    supabase
+      .from("rooms")
+      .select("id, name")
+      .order("created_at", { ascending: true })
+      .then(({ data }) => {
+        setRooms((data ?? []) as RoomOption[]);
+      });
+    supabase
+      .from("children")
+      .select("id, full_name, room_id, photo_consent")
+      .eq("status", "active")
+      .order("full_name", { ascending: true })
+      .then(({ data }) => {
+        setKids((data ?? []) as ChildOption[]);
+      });
   }, []);
 
   function dismiss() {
-    photos.forEach((url) => URL.revokeObjectURL(url));
+    photos.forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
     onClose();
   }
+
+  useEffect(() => {
+    if (state.success) {
+      photos.forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
+      onClose();
+    }
+  });
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -91,32 +160,53 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
   function handleFiles(event: React.ChangeEvent<HTMLInputElement>) {
     const files = event.target.files;
     if (!files || files.length === 0) return;
-    const urls = Array.from(files).map((file) =>
-      URL.createObjectURL(file),
-    );
-    setPhotos((prev) => [...prev, ...urls]);
+    const list = Array.from(files);
+
+    if (photos.length + list.length > MAX_PHOTOS) {
+      setErrors((prev) => ({ ...prev, photos: PHOTO_COUNT_ERROR }));
+      event.target.value = "";
+      return;
+    }
+    for (const file of list) {
+      if (!file.type.startsWith("image/")) {
+        setErrors((prev) => ({ ...prev, photos: PHOTO_TYPE_ERROR }));
+        event.target.value = "";
+        return;
+      }
+      if (file.size > MAX_PHOTO_BYTES) {
+        setErrors((prev) => ({ ...prev, photos: PHOTO_SIZE_ERROR }));
+        event.target.value = "";
+        return;
+      }
+    }
+
+    setErrors((prev) => ({ ...prev, photos: undefined }));
+    const entries = list.map((file) => ({
+      file,
+      previewUrl: URL.createObjectURL(file),
+    }));
+    setPhotos((prev) => [...prev, ...entries]);
     event.target.value = "";
   }
 
-  function removePhoto(url: string) {
-    URL.revokeObjectURL(url);
-    setPhotos((prev) => prev.filter((photo) => photo !== url));
+  function removePhoto(previewUrl: string) {
+    URL.revokeObjectURL(previewUrl);
+    setPhotos((prev) => prev.filter((photo) => photo.previewUrl !== previewUrl));
+    setErrors((prev) => ({ ...prev, photos: undefined }));
   }
 
-  const kids = [...KIDS, ...localKids];
-
-  function toggleAllRoom() {
-    if (allRoom) {
-      setAllRoom(false);
+  function toggleRoom(roomId: string) {
+    if (selectedRoomId === roomId) {
+      setSelectedRoomId(null);
       return;
     }
-    setAllRoom(true);
+    setSelectedRoomId(roomId);
     setSelectedKidIds([]);
   }
 
   function toggleKid(kidId: string) {
-    if (allRoom) {
-      setAllRoom(false);
+    if (selectedRoomId) {
+      setSelectedRoomId(null);
       setSelectedKidIds([kidId]);
       return;
     }
@@ -127,9 +217,20 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
     );
   }
 
-  function handlePublish() {
+  function audienceHasBlockedConsent(): boolean {
+    if (selectedRoomId) {
+      return kids.some(
+        (kid) => kid.room_id === selectedRoomId && !kid.photo_consent,
+      );
+    }
+    const selected = new Set(selectedKidIds);
+    return kids.some((kid) => selected.has(kid.id) && !kid.photo_consent);
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     const next: CreatePostErrors = {
-      audience: !allRoom && selectedKidIds.length === 0,
+      audience: !selectedRoomId && selectedKidIds.length === 0,
       type: !type,
       description: !description.trim(),
     };
@@ -137,35 +238,25 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
     if (next.audience || next.type || next.description || type === null) {
       return;
     }
-
-    const audience = allRoom
-      ? "toda la sala"
-      : `familia de ${selectedKidIds
-          .map((id) => kids.find((kid) => kid.id === id)?.name.split(" ")[0])
-          .filter((name) => name)
-          .join(", ")}`;
-
-    const now = new Date();
-    const time = `${String(now.getHours()).padStart(2, "0")}:${String(
-      now.getMinutes(),
-    ).padStart(2, "0")}`;
-
-    addPost({
-      id: `p-${Date.now().toString(36)}`,
-      authorName: "Caro Giménez",
-      authorInitial: "C",
-      avatarBg: "#F2937A",
-      avatarColor: "#FFFFFF",
-      time,
-      publishedByMe: true,
-      type,
-      audience,
-      text: description,
-      photos: photos.length ? photos : undefined,
-      hearts: 0,
-      comments: 0,
+    if (photos.length > 0 && audienceHasBlockedConsent()) {
+      setErrors({ ...next, photos: PHOTO_CONSENT_ERROR });
+      return;
+    }
+    const formData = new FormData();
+    formData.set("type", type);
+    formData.set("body", description.trim());
+    formData.set("title", title.trim());
+    formData.set("audienceMode", selectedRoomId ? "room" : "kids");
+    if (selectedRoomId) formData.set("roomId", selectedRoomId);
+    for (const kidId of selectedKidIds) {
+      formData.append("kidIds", kidId);
+    }
+    for (const photo of photos) {
+      formData.append("photos", photo.file);
+    }
+    startTransition(() => {
+      formAction(formData);
     });
-    onClose();
   }
 
   function pillClass(selected: boolean): string {
@@ -184,10 +275,11 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
         if (event.target === event.currentTarget) dismiss();
       }}
     >
-      <div
+      <form
         role="dialog"
         aria-modal="true"
         aria-label="Nueva publicación"
+        onSubmit={handleSubmit}
         className="my-auto max-h-[calc(100dvh_-_32px)] w-full max-w-[580px] overflow-y-auto overflow-x-hidden rounded-[24px] border border-[#ECE0D0] bg-[#FBF4EC] shadow-[0_20px_50px_-24px_rgba(63,54,46,.35)] sm:max-h-[calc(100dvh_-_48px)]"
       >
         <div className="flex items-center justify-between border-b border-[#ECE0D0] px-[26px] py-5">
@@ -202,9 +294,9 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
             Nueva publicación
           </span>
           <button
-            type="button"
-            onClick={handlePublish}
-            className="cursor-pointer text-[15px] font-extrabold text-[#D9583C]"
+            type="submit"
+            disabled={pending}
+            className="cursor-pointer text-[15px] font-extrabold text-[#D9583C] disabled:cursor-not-allowed disabled:opacity-60"
           >
             Publicar
           </button>
@@ -214,9 +306,25 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
           <div className="mb-[22px]">
             <div className={SECTION_LABEL_CLASS}>PARA</div>
             <div className="flex flex-wrap gap-[9px]">
-              {kids.map((kid) => {
-                const selected = !allRoom && selectedKidIds.includes(kid.id);
-                const firstName = kid.name.split(" ")[0];
+              {rooms.map((room) => {
+                const selected = selectedRoomId === room.id;
+                return (
+                  <button
+                    key={room.id}
+                    type="button"
+                    onClick={() => toggleRoom(room.id)}
+                    className={`${pillClass(selected)} px-4 py-[6px]`}
+                  >
+                    Toda la sala · {room.name}
+                  </button>
+                );
+              })}
+              {kids.map((kid, index) => {
+                const selected =
+                  !selectedRoomId && selectedKidIds.includes(kid.id);
+                const [avatarBg, avatarColor] =
+                  AVATAR_PALETTE[index % AVATAR_PALETTE.length];
+                const firstName = kid.full_name.split(" ")[0];
                 return (
                   <button
                     key={kid.id}
@@ -227,23 +335,16 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
                     <span
                       className="flex h-[26px] w-[26px] flex-none items-center justify-center rounded-full font-display text-[13px] font-semibold"
                       style={{
-                        backgroundColor: kid.avatarBg,
-                        color: kid.avatarColor,
+                        backgroundColor: avatarBg,
+                        color: avatarColor,
                       }}
                     >
-                      {kid.initial}
+                      {kid.full_name.trim().charAt(0).toUpperCase()}
                     </span>
                     {firstName}
                   </button>
                 );
               })}
-              <button
-                type="button"
-                onClick={toggleAllRoom}
-                className={`${pillClass(allRoom)} px-4 py-[6px]`}
-              >
-                Toda la sala
-              </button>
             </div>
             {errors.audience && <ErrorMessage />}
           </div>
@@ -279,6 +380,17 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
           </div>
 
           <div className="mb-[22px]">
+            <div className={SECTION_LABEL_CLASS}>Título (opcional)</div>
+            <input
+              type="text"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="Agregá un título…"
+              className="w-full rounded-[14px] border-[1.5px] border-[#EADFD0] bg-white px-4 py-[12px] text-[15px] leading-normal text-foreground outline-none placeholder:text-[#B6A99B]"
+            />
+          </div>
+
+          <div className="mb-[22px]">
             <div className={SECTION_LABEL_CLASS}>DESCRIPCIÓN</div>
             <textarea
               value={description}
@@ -292,17 +404,17 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
           <div>
             <div className={SECTION_LABEL_CLASS}>FOTOS</div>
             <div className="flex flex-wrap gap-3">
-              {photos.map((url) => (
-                <div key={url} className="relative h-24 w-24">
+              {photos.map((photo) => (
+                <div key={photo.previewUrl} className="relative h-24 w-24">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={url}
+                    src={photo.previewUrl}
                     alt=""
                     className="h-24 w-24 rounded-[14px] object-cover"
                   />
                   <button
                     type="button"
-                    onClick={() => removePhoto(url)}
+                    onClick={() => removePhoto(photo.previewUrl)}
                     aria-label="Quitar foto"
                     className="absolute -right-2 -top-2 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-[#3F362E] text-white shadow-[0_4px_10px_-4px_rgba(63,54,46,.6)]"
                   >
@@ -327,9 +439,14 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
               className="hidden"
               onChange={handleFiles}
             />
+            {(errors.photos || state.error) && (
+              <p className="mt-1.5 text-[12.5px] font-bold text-[#D9583C]">
+                {errors.photos ?? state.error}
+              </p>
+            )}
           </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 }
