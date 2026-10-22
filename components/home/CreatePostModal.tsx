@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
+import { createPost, type CreatePostState } from "@/app/actions";
 import { POST_TYPE_ORDER, type PostType } from "@/app/_data/mock";
 import { useFeed } from "@/components/home/FeedContext";
 import { CloseIcon, PlusIcon } from "@/components/shared/icons";
@@ -64,6 +71,13 @@ interface ChildOption {
   photo_consent: boolean;
 }
 
+interface PhotoEntry {
+  file: File;
+  previewUrl: string;
+}
+
+const initialState: CreatePostState = {};
+
 function textareaClass(hasError: boolean): string {
   return [
     "min-h-[120px] w-full resize-y rounded-[14px] border-[1.5px] bg-white px-4 py-[14px] text-[15px] leading-normal text-foreground outline-none placeholder:text-[#B6A99B]",
@@ -94,9 +108,13 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [errors, setErrors] = useState<CreatePostErrors>({});
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [photos, setPhotos] = useState<PhotoEntry[]>([]);
   const [rooms, setRooms] = useState<RoomOption[]>([]);
   const [kids, setKids] = useState<ChildOption[]>([]);
+  const [state, formAction, pending] = useActionState(
+    createPost,
+    initialState,
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -119,9 +137,16 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
   }, []);
 
   function dismiss() {
-    photos.forEach((url) => URL.revokeObjectURL(url));
+    photos.forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
     onClose();
   }
+
+  useEffect(() => {
+    if (state.success) {
+      photos.forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
+      onClose();
+    }
+  });
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -155,14 +180,17 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
     }
 
     setErrors((prev) => ({ ...prev, photos: undefined }));
-    const urls = list.map((file) => URL.createObjectURL(file));
-    setPhotos((prev) => [...prev, ...urls]);
+    const entries = list.map((file) => ({
+      file,
+      previewUrl: URL.createObjectURL(file),
+    }));
+    setPhotos((prev) => [...prev, ...entries]);
     event.target.value = "";
   }
 
-  function removePhoto(url: string) {
-    URL.revokeObjectURL(url);
-    setPhotos((prev) => prev.filter((photo) => photo !== url));
+  function removePhoto(previewUrl: string) {
+    URL.revokeObjectURL(previewUrl);
+    setPhotos((prev) => prev.filter((photo) => photo.previewUrl !== previewUrl));
     setErrors((prev) => ({ ...prev, photos: undefined }));
   }
 
@@ -198,7 +226,8 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
     return kids.some((kid) => selected.has(kid.id) && !kid.photo_consent);
   }
 
-  function handlePublish() {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     const next: CreatePostErrors = {
       audience: !selectedRoomId && selectedKidIds.length === 0,
       type: !type,
@@ -212,7 +241,19 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
       setErrors({ ...next, photos: PHOTO_CONSENT_ERROR });
       return;
     }
-    onClose();
+    const formData = new FormData();
+    formData.set("type", type);
+    formData.set("body", description.trim());
+    formData.set("title", title.trim());
+    formData.set("audienceMode", selectedRoomId ? "room" : "kids");
+    if (selectedRoomId) formData.set("roomId", selectedRoomId);
+    for (const kidId of selectedKidIds) {
+      formData.append("kidIds", kidId);
+    }
+    for (const photo of photos) {
+      formData.append("photos", photo.file);
+    }
+    formAction(formData);
   }
 
   function pillClass(selected: boolean): string {
@@ -231,10 +272,11 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
         if (event.target === event.currentTarget) dismiss();
       }}
     >
-      <div
+      <form
         role="dialog"
         aria-modal="true"
         aria-label="Nueva publicación"
+        onSubmit={handleSubmit}
         className="my-auto max-h-[calc(100dvh_-_32px)] w-full max-w-[580px] overflow-y-auto overflow-x-hidden rounded-[24px] border border-[#ECE0D0] bg-[#FBF4EC] shadow-[0_20px_50px_-24px_rgba(63,54,46,.35)] sm:max-h-[calc(100dvh_-_48px)]"
       >
         <div className="flex items-center justify-between border-b border-[#ECE0D0] px-[26px] py-5">
@@ -249,9 +291,9 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
             Nueva publicación
           </span>
           <button
-            type="button"
-            onClick={handlePublish}
-            className="cursor-pointer text-[15px] font-extrabold text-[#D9583C]"
+            type="submit"
+            disabled={pending}
+            className="cursor-pointer text-[15px] font-extrabold text-[#D9583C] disabled:cursor-not-allowed disabled:opacity-60"
           >
             Publicar
           </button>
@@ -359,17 +401,17 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
           <div>
             <div className={SECTION_LABEL_CLASS}>FOTOS</div>
             <div className="flex flex-wrap gap-3">
-              {photos.map((url) => (
-                <div key={url} className="relative h-24 w-24">
+              {photos.map((photo) => (
+                <div key={photo.previewUrl} className="relative h-24 w-24">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={url}
+                    src={photo.previewUrl}
                     alt=""
                     className="h-24 w-24 rounded-[14px] object-cover"
                   />
                   <button
                     type="button"
-                    onClick={() => removePhoto(url)}
+                    onClick={() => removePhoto(photo.previewUrl)}
                     aria-label="Quitar foto"
                     className="absolute -right-2 -top-2 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-[#3F362E] text-white shadow-[0_4px_10px_-4px_rgba(63,54,46,.6)]"
                   >
@@ -394,14 +436,14 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
               className="hidden"
               onChange={handleFiles}
             />
-            {errors.photos && (
+            {(errors.photos || state.error) && (
               <p className="mt-1.5 text-[12.5px] font-bold text-[#D9583C]">
-                {errors.photos}
+                {errors.photos ?? state.error}
               </p>
             )}
           </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 }
