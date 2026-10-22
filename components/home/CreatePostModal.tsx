@@ -37,10 +37,19 @@ const AVATAR_PALETTE: ReadonlyArray<readonly [string, string]> = [
   ["#F4DC8E", "#9A7B1E"],
 ];
 
+const MAX_PHOTOS = 5;
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+const PHOTO_SIZE_ERROR = "Cada foto debe pesar menos de 5 MB";
+const PHOTO_TYPE_ERROR = "Solo se pueden adjuntar imágenes";
+const PHOTO_COUNT_ERROR = "Máximo 5 fotos";
+const PHOTO_CONSENT_ERROR =
+  "Hay niños sin consentimiento de fotos en la audiencia. Quitá las fotos o publicalas sin ellas.";
+
 interface CreatePostErrors {
   audience?: boolean;
   type?: boolean;
   description?: boolean;
+  photos?: string;
 }
 
 interface RoomOption {
@@ -82,6 +91,7 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
   const [selectedKidIds, setSelectedKidIds] = useState<string[]>([]);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [type, setType] = useState<PostType | null>(null);
+  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [errors, setErrors] = useState<CreatePostErrors>({});
   const [photos, setPhotos] = useState<string[]>([]);
@@ -124,9 +134,28 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
   function handleFiles(event: React.ChangeEvent<HTMLInputElement>) {
     const files = event.target.files;
     if (!files || files.length === 0) return;
-    const urls = Array.from(files).map((file) =>
-      URL.createObjectURL(file),
-    );
+    const list = Array.from(files);
+
+    if (photos.length + list.length > MAX_PHOTOS) {
+      setErrors((prev) => ({ ...prev, photos: PHOTO_COUNT_ERROR }));
+      event.target.value = "";
+      return;
+    }
+    for (const file of list) {
+      if (!file.type.startsWith("image/")) {
+        setErrors((prev) => ({ ...prev, photos: PHOTO_TYPE_ERROR }));
+        event.target.value = "";
+        return;
+      }
+      if (file.size > MAX_PHOTO_BYTES) {
+        setErrors((prev) => ({ ...prev, photos: PHOTO_SIZE_ERROR }));
+        event.target.value = "";
+        return;
+      }
+    }
+
+    setErrors((prev) => ({ ...prev, photos: undefined }));
+    const urls = list.map((file) => URL.createObjectURL(file));
     setPhotos((prev) => [...prev, ...urls]);
     event.target.value = "";
   }
@@ -134,6 +163,7 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
   function removePhoto(url: string) {
     URL.revokeObjectURL(url);
     setPhotos((prev) => prev.filter((photo) => photo !== url));
+    setErrors((prev) => ({ ...prev, photos: undefined }));
   }
 
   function toggleRoom(roomId: string) {
@@ -158,6 +188,16 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
     );
   }
 
+  function audienceHasBlockedConsent(): boolean {
+    if (selectedRoomId) {
+      return kids.some(
+        (kid) => kid.room_id === selectedRoomId && !kid.photo_consent,
+      );
+    }
+    const selected = new Set(selectedKidIds);
+    return kids.some((kid) => selected.has(kid.id) && !kid.photo_consent);
+  }
+
   function handlePublish() {
     const next: CreatePostErrors = {
       audience: !selectedRoomId && selectedKidIds.length === 0,
@@ -166,6 +206,10 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
     };
     setErrors(next);
     if (next.audience || next.type || next.description || type === null) {
+      return;
+    }
+    if (photos.length > 0 && audienceHasBlockedConsent()) {
+      setErrors({ ...next, photos: PHOTO_CONSENT_ERROR });
       return;
     }
     onClose();
@@ -291,6 +335,17 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
           </div>
 
           <div className="mb-[22px]">
+            <div className={SECTION_LABEL_CLASS}>Título (opcional)</div>
+            <input
+              type="text"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="Agregá un título…"
+              className="w-full rounded-[14px] border-[1.5px] border-[#EADFD0] bg-white px-4 py-[12px] text-[15px] leading-normal text-foreground outline-none placeholder:text-[#B6A99B]"
+            />
+          </div>
+
+          <div className="mb-[22px]">
             <div className={SECTION_LABEL_CLASS}>DESCRIPCIÓN</div>
             <textarea
               value={description}
@@ -339,6 +394,11 @@ function CreatePostDialog({ onClose }: { onClose: () => void }) {
               className="hidden"
               onChange={handleFiles}
             />
+            {errors.photos && (
+              <p className="mt-1.5 text-[12.5px] font-bold text-[#D9583C]">
+                {errors.photos}
+              </p>
+            )}
           </div>
         </div>
       </div>
